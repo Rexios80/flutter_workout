@@ -26,7 +26,7 @@ public:
     explicit HealthTizenPlugin(PluginRegistrar *registrar) {
         auto channel =
                 make_unique<MethodChannel<EncodableValue> >(
-                        registrar->messenger(), "health_tizen",
+                        registrar->messenger(), "workout",
                         &StandardMethodCodec::GetInstance());
 
         channel->SetMethodCallHandler(
@@ -66,8 +66,8 @@ private:
             const EncodableList argumentList = get<EncodableList>(arguments);
             for (int i = 0; i < argumentList.size(); i++) {
                 string stringArgument = get<string>(argumentList[i]);
-                if (stringArgument == "hrm") {
-                    error += "" + startHrm();
+                if (stringArgument == "heartRate") {
+                    error += "" + startHeartRate();
                 } else if (stringArgument == "pedometer") {
                     error += "" + startPedometer();
                 }
@@ -80,7 +80,7 @@ private:
 
     sensor_listener_h hrListener;
 
-    string startHrm() {
+    string startHeartRate() {
         sensor_h sensor;
 
         bool supported;
@@ -140,7 +140,7 @@ private:
 
         switch (type) {
             case SENSOR_HRM: {
-                EncodableList wrapped = {EncodableValue("hrm"), EncodableValue(event->values[0])};
+                EncodableList wrapped = {EncodableValue("heartRate"), EncodableValue(event->values[0])};
                 auto arguments = std::make_unique<EncodableValue>(wrapped);
                 channel_->InvokeMethod("dataReceived", move(arguments));
                 break;

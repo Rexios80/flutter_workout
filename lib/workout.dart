@@ -1,73 +1,39 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/services.dart';
-import 'package:health_tizen/health_tizen.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+part 'workout_reading.dart';
+
+part 'workout_session.dart';
 
 class Workout {
   static const MethodChannel _channel = const MethodChannel('workout');
 
   final _streamController = StreamController<WorkoutReading>.broadcast();
-  HealthTizen? _healthTizen;
+  final _session = WorkoutSession(_channel);
 
   Stream<WorkoutReading> get stream => _streamController.stream;
 
-  Future<void> start() {
-    if (Platform.isAndroid) {
-      return _startAndroid();
-    } else {
-      // Platform.isTizen
-      return _startTizen();
-    }
-  }
-
-  void stop() {
-    if (Platform.isAndroid) {
-      _stopAndroid();
-    } else {
-      // Platform.isTizen
-      _stopTizen();
-    }
-  }
-
-  Future<void> _startAndroid() {
-    return Future.error(UnimplementedError());
-  }
-
-  Future<void> _startTizen() {
-    _healthTizen = HealthTizen();
-
-    _healthTizen?.stream.listen(
+  Workout() {
+    _session.stream.listen(
       (event) => _streamController.add(
         WorkoutReading(
-          event.sensor == TizenSensor.hrm
-              ? WorkoutReadingType.heartRate
-              : WorkoutReadingType.unknown,
+          event.sensor == WorkoutSensor.heartRate
+              ? WorkoutSensor.heartRate
+              : WorkoutSensor.unknown,
           event.value,
         ),
       ),
     );
-
-    return _healthTizen?.start([TizenSensor.hrm]) ??
-        Future.error("_healthTizen not initialized");
   }
 
-  void _stopAndroid() {}
-
-  void _stopTizen() {
-    _healthTizen?.stop();
+  Future<void> start(List<WorkoutSensor> sensors) async {
+    return _session.start(sensors);
   }
-}
 
-class WorkoutReading {
-  final timestamp = DateTime.now().millisecondsSinceEpoch;
-  final WorkoutReadingType type;
-  final double value;
-
-  WorkoutReading(this.type, this.value);
-}
-
-enum WorkoutReadingType {
-  unknown,
-  heartRate,
+  Future<void> stop() {
+    return _session.stop();
+  }
 }

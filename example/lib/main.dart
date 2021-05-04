@@ -15,9 +15,9 @@ class _MyAppState extends State<MyApp> {
 
   _MyAppState() {
     final workout = Workout();
-    workout.start();
+    workout.start([WorkoutSensor.heartRate]);
     workout.stream.listen((event) {
-      if (event.type == WorkoutReadingType.heartRate) {
+      if (event.sensor == WorkoutSensor.heartRate) {
         setState(() {
           heartRate = event.value;
         });

@@ -1,6 +1,6 @@
 name: workout
 description: Run a workout session on Wear OS and Tizen.
-version: 1.0.0
+version: 0.0.1
 author: Rexios
 homepage: https://github.com/Rexios80/flutter_workout
 
@@ -12,11 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
 
-  health_tizen:
-    git:
-      url: git://github.com/Rexios80/plugins.git
-      ref: health
-      path: packages/health
+  enum_to_string: ^2.0.1
+  permission_handler: ^7.1.0
+  permission_handler_tizen: ^1.0.0
 
 flutter:
   plugin:

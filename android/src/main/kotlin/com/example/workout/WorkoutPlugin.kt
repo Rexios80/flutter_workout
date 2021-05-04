@@ -35,6 +35,8 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, SensorEventListener {
             } else {
                 result.error(error, null, null)
             }
+        } else if (call.method == "stop") {
+            stopHeartRate()
         } else {
             result.notImplemented()
         }
