@@ -5,7 +5,12 @@ Run a workout session and get live health data from Wear OS and Tizen.
 ## Getting Started
 
 ### Wear OS
-TODO
+
+build.gradle:
+`minSdkVersion 23`
+
+AndroidManifest.xml:
+`<uses-permission android:name="android.permission.BODY_SENSORS" />`
 
 ### Tizen
 

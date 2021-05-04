@@ -7,6 +7,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  wear: ^0.1.1
 
   workout:
     # When depending on this package from a real application you should use:
