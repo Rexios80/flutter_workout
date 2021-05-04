@@ -24,3 +24,6 @@ flutter:
       android:
         package: com.example.workout
         pluginClass: WorkoutPlugin
+      tizen:
+        pluginClass: HealthTizenPlugin
+        fileName: health_tizen_plugin.h
