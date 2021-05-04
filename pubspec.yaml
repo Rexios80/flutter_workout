@@ -2,7 +2,7 @@ name: workout
 description: Run a workout session on Wear OS and Tizen.
 version: 1.0.0
 author: Rexios
-homepage:
+homepage: https://github.com/Rexios80/flutter_workout
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -24,6 +24,3 @@ flutter:
       android:
         package: com.example.workout
         pluginClass: WorkoutPlugin
-      tizen:
-        pluginClass: WorkoutPlugin
-        fileName: workout_plugin.h
