@@ -20,6 +20,8 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, SensorEventListener {
     private lateinit var context: Context
     private lateinit var sensorManager: SensorManager
 
+    private lateinit var heartRateSensor: Sensor
+
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "workout")
         channel.setMethodCallHandler(this)
@@ -63,11 +65,11 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, SensorEventListener {
 
     private fun startHeartRate() {
         sensorManager = getSystemService(context, SensorManager::class.java) as SensorManager
-        val hrSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
-        sensorManager.registerListener(this, hrSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
+        sensorManager.registerListener(this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL)
 
 
-        sensorManager.registerListener(this, hrSensor, SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this, heartRateSensor, SENSOR_DELAY_FASTEST);
     }
 
     private fun stopHeartRate() {
@@ -75,9 +77,14 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (event == null) return;
-        channel.invokeMethod("dataReceived", listOf(event.sensor?.name
-                ?: "Unknown", event.values[0].toString()))
+        if (event == null) return
+
+        val sensor = when (event.sensor) {
+            heartRateSensor -> "heartRate"
+            else -> "unknown"
+        }
+
+        channel.invokeMethod("dataReceived", listOf(sensor, event.values[0]))
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}

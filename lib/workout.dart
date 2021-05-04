@@ -19,12 +19,7 @@ class Workout {
   Workout() {
     _session.stream.listen(
       (event) => _streamController.add(
-        WorkoutReading(
-          event.sensor == WorkoutSensor.heartRate
-              ? WorkoutSensor.heartRate
-              : WorkoutSensor.unknown,
-          event.value,
-        ),
+        WorkoutReading(event.sensor, event.value),
       ),
     );
   }

@@ -35,7 +35,7 @@ class WorkoutSession {
         WorkoutReading(
           EnumToString.fromString(WorkoutSensor.values, arguments[0]) ??
               WorkoutSensor.unknown,
-          arguments[1] as double,
+          arguments[1],
         ),
       );
       return Future<void>.value();
