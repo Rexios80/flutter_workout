@@ -8,6 +8,7 @@ class Workout {
   static const MethodChannel _channel = const MethodChannel('workout');
 
   final _streamController = StreamController<WorkoutReading>.broadcast();
+  HealthTizen? _healthTizen;
 
   Stream<WorkoutReading> get stream => _streamController.stream;
 
@@ -20,14 +21,23 @@ class Workout {
     }
   }
 
+  void stop() {
+    if (Platform.isAndroid) {
+      _stopAndroid();
+    } else {
+      // Platform.isTizen
+      _stopTizen();
+    }
+  }
+
   Future<void> _startAndroid() {
     return Future.error(UnimplementedError());
   }
 
   Future<void> _startTizen() {
-    final health = HealthTizen();
+    _healthTizen = HealthTizen();
 
-    health.stream.listen(
+    _healthTizen?.stream.listen(
       (event) => _streamController.add(
         WorkoutReading(
           event.sensor == TizenSensor.hrm
@@ -38,7 +48,14 @@ class Workout {
       ),
     );
 
-    return health.start([TizenSensor.hrm]);
+    return _healthTizen?.start([TizenSensor.hrm]) ??
+        Future.error("_healthTizen not initialized");
+  }
+
+  void _stopAndroid() {}
+
+  void _stopTizen() {
+    _healthTizen?.stop();
   }
 }
 
