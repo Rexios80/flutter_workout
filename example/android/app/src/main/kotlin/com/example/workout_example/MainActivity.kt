@@ -1,4 +1,4 @@
-package com.example.workout_example
+package dev.rexios.workout_example
 
 import io.flutter.embedding.android.FlutterActivity
 

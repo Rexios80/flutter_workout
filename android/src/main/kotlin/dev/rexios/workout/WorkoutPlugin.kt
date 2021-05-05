@@ -1,4 +1,4 @@
-package com.example.workout
+package dev.rexios.workout
 
 import android.content.Context
 import android.hardware.Sensor

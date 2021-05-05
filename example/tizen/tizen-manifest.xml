@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest api-version="5.5" package="com.example.workout_example" version="1.0.0"
+<manifest api-version="5.5" package="dev.rexios.workout_example" version="1.0.0"
     xmlns="http://tizen.org/ns/packages">
     <profile name="common" />
-    <ui-application api-version="4" appid="com.example.workout_example" exec="Runner.dll"
+    <ui-application api-version="4" appid="dev.rexios.workout_example" exec="Runner.dll"
         launch_mode="single" multiple="false" nodisplay="false" taskmanage="true" type="dotnet">
         <label>workout_example</label>
         <icon>ic_launcher.png</icon>

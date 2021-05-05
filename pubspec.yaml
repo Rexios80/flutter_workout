@@ -19,7 +19,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.workout
+        package: dev.rexios.workout
         pluginClass: WorkoutPlugin
       tizen:
         pluginClass: HealthTizenPlugin
