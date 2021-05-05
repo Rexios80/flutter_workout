@@ -12,23 +12,30 @@ class Workout {
   static const MethodChannel _channel = const MethodChannel('workout');
 
   final _streamController = StreamController<WorkoutReading>.broadcast();
-  final _session = WorkoutSession(_channel);
+  final _session = _WorkoutSession(_channel);
 
+  /// A stream of [WorkoutReading] collected by the workout session.
   Stream<WorkoutReading> get stream => _streamController.stream;
 
   Workout() {
-    _session.stream.listen(
+    _session._stream.listen(
       (event) => _streamController.add(
-        WorkoutReading(event.sensor, event.value),
+        WorkoutReading._(event.sensor, event.value),
       ),
     );
   }
 
+  /// Starts a workout session with the specified [sensors] enabled.
+  ///
+  /// Returns [Future.error] if starting the session fails.
   Future<void> start(List<WorkoutSensor> sensors) async {
-    return _session.start(sensors);
+    return _session._start(sensors);
   }
 
+  /// Stops the workout session and sensor data collection.
+  ///
+  /// Returns [Future.error] if stopping the session fails.
   Future<void> stop() {
-    return _session.stop();
+    return _session._stop();
   }
 }

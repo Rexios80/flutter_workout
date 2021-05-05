@@ -1,20 +1,20 @@
 part of 'workout.dart';
 
-class WorkoutSession {
+class _WorkoutSession {
   final MethodChannel _channel;
 
-  WorkoutSession(this._channel) {
+  _WorkoutSession(this._channel) {
     _channel.setMethodCallHandler(_handleMessage);
   }
 
   final StreamController<WorkoutReading> _streamController =
       StreamController<WorkoutReading>.broadcast();
 
-  Stream<WorkoutReading> get stream {
+  Stream<WorkoutReading> get _stream {
     return _streamController.stream;
   }
 
-  Future<void> start(List<WorkoutSensor> sensors) async {
+  Future<void> _start(List<WorkoutSensor> sensors) async {
     final PermissionStatus status = await Permission.sensors.request();
     if (status.isDenied || status.isPermanentlyDenied) {
       return Future<void>.error('Health permissions not granted');
@@ -23,7 +23,7 @@ class WorkoutSession {
         'start', sensors.map(EnumToString.convertToString).toList());
   }
 
-  Future<void> stop() async {
+  Future<void> _stop() async {
     return _channel.invokeMethod<void>('stop');
   }
 
@@ -32,7 +32,7 @@ class WorkoutSession {
       final List<dynamic> arguments = call.arguments as List<dynamic>;
 
       _streamController.add(
-        WorkoutReading(
+        WorkoutReading._(
           EnumToString.fromString(WorkoutSensor.values, arguments[0]) ??
               WorkoutSensor.unknown,
           arguments[1],

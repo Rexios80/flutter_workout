@@ -1,6 +1,6 @@
 name: workout
-description: Run a workout session on Wear OS and Tizen.
-version: 0.0.1
+description: Run a workout session on Wear OS and Tizen. Get data such as heart rate in real time.
+version: 0.0.2
 homepage: https://github.com/Rexios80/flutter_workout
 
 environment:
