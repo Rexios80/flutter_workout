@@ -16,7 +16,7 @@ AndroidManifest.xml:
 
 This plugin requires Tizen 5.5+.
 
-Make the following changes to `tizen/tizen-manifest.xml`
+Make the following changes to `tizen/tizen-manifest.xml`:
 ```
 <manifest api-version="5.5" ...>
     <privileges>
