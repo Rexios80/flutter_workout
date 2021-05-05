@@ -1,3 +1,7 @@
+## 0.0.3
+
+Changed com.example to dev.rexios
+
 ## 0.0.2
 
 Added documentation
