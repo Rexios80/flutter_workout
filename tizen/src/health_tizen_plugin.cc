@@ -138,20 +138,29 @@ private:
 
         switch (type) {
             case SENSOR_HRM: {
-                EncodableList wrapped = {EncodableValue("heartRate"),
-                           EncodableValue(EncodableList({EncodableValue(event->values[0])}))};
-                sendData(wrapped);
+                EncodableList heartRate = {
+                        EncodableValue("heartRate"),
+                        EncodableValue(EncodableList({EncodableValue(event->values[0])}))};
+                sendData(heartRate);
                 break;
             }
             case SENSOR_HUMAN_PEDOMETER: {
-                EncodableList wrapped = {
+                // 0: steps
+                // 3: distance
+                // 4: calories (why is this in pedometer data?)
+                // 5: speed
+                EncodableList pedometer = {
                         EncodableValue("pedometer"),
                         EncodableValue(EncodableList({EncodableValue(event->values[0]),
                                                       EncodableValue(event->values[3]),
-                                                      EncodableValue(event->values[4]),
                                                       EncodableValue(event->values[5])})),
                 };
-                sendData(wrapped);
+                sendData(pedometer);
+
+                EncodableList calories = {
+                        EncodableValue("calories"),
+                        EncodableValue(EncodableList({EncodableValue(event->values[4])}))
+                };
                 break;
             }
             default: {
