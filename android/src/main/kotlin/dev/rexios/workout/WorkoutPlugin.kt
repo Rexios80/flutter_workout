@@ -1,46 +1,35 @@
 package dev.rexios.workout
 
-import android.content.Context
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
-import android.hardware.SensorManager.SENSOR_DELAY_FASTEST
 import androidx.annotation.NonNull
-import androidx.core.content.ContextCompat.getSystemService
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.fitness.FitnessOptions
+import com.google.android.gms.fitness.data.DataType
+import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
 /** WorkoutPlugin */
-class WorkoutPlugin : FlutterPlugin, MethodCallHandler, SensorEventListener {
-    private lateinit var channel: MethodChannel
-    private lateinit var context: Context
-    private lateinit var sensorManager: SensorManager
+class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+    private val googleFitPermissionsRequestCode = 1
 
-    private lateinit var heartRateSensor: Sensor
+    private lateinit var channel: MethodChannel
+    private lateinit var activity: FlutterActivity
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "workout")
         channel.setMethodCallHandler(this)
-
-        context = flutterPluginBinding.applicationContext
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        if (call.method == "start") {
-            val error = start(call.arguments)
-            if (error.isEmpty()) {
-                result.success("Sensors started")
-            } else {
-                result.error(error, null, null)
-            }
-        } else if (call.method == "stop") {
-            stopHeartRate()
-        } else {
-            result.notImplemented()
+        when (call.method) {
+            "start" -> start(call.arguments as List<String>)
+            "stop" -> stop()
+            else -> result.notImplemented()
         }
     }
 
@@ -48,44 +37,60 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, SensorEventListener {
         channel.setMethodCallHandler(null)
     }
 
-    private fun start(arguments: Any): String {
-        try {
-            val argumentList = arguments as List<String>
-            argumentList.forEach {
-                if (it == "heartRate") {
-                    startHeartRate()
-                }
-            }
-        } catch (e: Error) {
-            return e.localizedMessage ?: "Error starting sensors"
+    private fun start(arguments: List<String>) {
+        val fitnessOptionsBuilder = FitnessOptions.builder()
+        if (arguments.contains("heartRate")) {
+            fitnessOptionsBuilder.addDataType(
+                DataType.TYPE_HEART_RATE_BPM,
+                FitnessOptions.ACCESS_READ
+            )
         }
-
-        return ""
-    }
-
-    private fun startHeartRate() {
-        sensorManager = getSystemService(context, SensorManager::class.java) as SensorManager
-        heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
-        sensorManager.registerListener(this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL)
-
-
-        sensorManager.registerListener(this, heartRateSensor, SENSOR_DELAY_FASTEST);
-    }
-
-    private fun stopHeartRate() {
-        sensorManager.unregisterListener(this)
-    }
-
-    override fun onSensorChanged(event: SensorEvent?) {
-        if (event == null) return
-
-        val sensor = when (event.sensor) {
-            heartRateSensor -> "heartRate"
-            else -> "unknown"
+        if (arguments.contains("calories")) {
+            fitnessOptionsBuilder.addDataType(
+                DataType.TYPE_CALORIES_EXPENDED,
+                FitnessOptions.ACCESS_READ
+            )
         }
+        if (arguments.contains("steps")) {
+            fitnessOptionsBuilder.addDataType(
+                DataType.TYPE_STEP_COUNT_DELTA,
+                FitnessOptions.ACCESS_READ
+            )
+        }
+        if (arguments.contains("distance")) {
+            fitnessOptionsBuilder.addDataType(
+                DataType.TYPE_DISTANCE_DELTA,
+                FitnessOptions.ACCESS_READ
+            )
+        }
+        if (arguments.contains("speed")) {
+            fitnessOptionsBuilder.addDataType(DataType.TYPE_SPEED, FitnessOptions.ACCESS_READ)
+        }
+        val fitnessOptions = fitnessOptionsBuilder.build()
 
-        channel.invokeMethod("dataReceived", listOf(sensor, event.values[0]))
+        val account = GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
+
+        if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
+            GoogleSignIn.requestPermissions(
+                activity,
+                googleFitPermissionsRequestCode,
+                account,
+                fitnessOptions
+            )
+        } else {
+            accessGoogleFit()
+        }
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    private fun stop() {
+
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        activity = binding.activity as FlutterActivity
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {}
+    override fun onReattachedToActivityForConfigChanges(p0: ActivityPluginBinding) {}
+    override fun onDetachedFromActivity() {}
 }
