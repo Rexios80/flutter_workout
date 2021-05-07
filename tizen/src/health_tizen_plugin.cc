@@ -10,6 +10,7 @@
 #include <string>
 #include <sensor.h>
 #include <variant>
+#include <list>
 
 #include "log.h"
 
@@ -60,16 +61,20 @@ private:
         }
     }
 
+    list<sensor_listener_h> sensorListeners;
+
     string start(const EncodableValue arguments) {
         string error = "";
         if (holds_alternative<EncodableList>(arguments)) {
             const EncodableList argumentList = get<EncodableList>(arguments);
             for (int i = 0; i < argumentList.size(); i++) {
                 string stringArgument = get<string>(argumentList[i]);
+                sensor_listener_h listener;
+                sensorListeners.push_front(listener);
                 if (stringArgument == "heartRate") {
-                    error += "" + startHeartRate();
+                    error += "" + startSensor(SENSOR_HRM, listener);
                 } else if (stringArgument == "pedometer") {
-                    error += "" + startPedometer();
+                    error += "" + startSensor(SENSOR_HUMAN_PEDOMETER, listener);
                 }
             }
         }
@@ -77,16 +82,13 @@ private:
         return error;
     }
 
-
-    sensor_listener_h hrListener;
-
-    string startHeartRate() {
+    string startSensor(sensor_type_e type, sensor_listener_h listener) {
         sensor_h sensor;
 
         bool supported;
-        int error = sensor_is_supported(SENSOR_HRM, &supported);
+        int error = sensor_is_supported(type, &supported);
         if (error != SENSOR_ERROR_NONE) {
-            return "sensor_is_supported error: " + to_string(error);
+            return "sensor_is_supported error: " + to_string(type) + ", " + to_string(error);
         }
 
         if (!supported) {
@@ -96,34 +98,34 @@ private:
         int count;
         sensor_h *list;
 
-        error = sensor_get_sensor_list(SENSOR_HRM, &list, &count);
+        error = sensor_get_sensor_list(type, &list, &count);
         if (error != SENSOR_ERROR_NONE) {
-            return "sensor_get_sensor_list error: " + to_string(error);
+            return "sensor_get_sensor_list error: " + to_string(type) + ", " + to_string(error);
         } else {
             free(list);
         }
 
-        error = sensor_get_default_sensor(SENSOR_HRM, &sensor);
+        error = sensor_get_default_sensor(type, &sensor);
         if (error != SENSOR_ERROR_NONE) {
-            return "sensor_get_default_sensor error: " + to_string(error);
+            return "sensor_get_default_sensor error: " + to_string(type) + ", " + to_string(error);
         }
 
         // creating an event listener
-        error = sensor_create_listener(sensor, &hrListener);
+        error = sensor_create_listener(sensor, &listener);
         if (error != SENSOR_ERROR_NONE) {
-            return "sensor_create_listener error: " + to_string(error);
+            return "sensor_create_listener error: " + to_string(type) + ", " + to_string(error);
         }
 
         string userData = "Why do I need this?";
         // Callback for sensor value change
-        error = sensor_listener_set_event_cb(hrListener, 1000, on_sensor_event, &userData);
+        error = sensor_listener_set_event_cb(listener, 1000, on_sensor_event, &userData);
         if (error != SENSOR_ERROR_NONE) {
-            return "sensor_listener_set_event_cb error: " + to_string(error);
+            return "sensor_listener_set_event_cb error: " + to_string(type) + ", " + to_string(error);
         }
 
-        error = sensor_listener_start(hrListener);
+        error = sensor_listener_start(listener);
         if (error != SENSOR_ERROR_NONE) {
-            return "sensor_listener_start error: " + to_string(error);
+            return "sensor_listener_start error: " + to_string(type) + ", " + to_string(error);
         }
 
         return "";
@@ -138,25 +140,40 @@ private:
         sensor_type_e type;
         sensor_get_type(sensor, &type);
 
+        EncodableList wrapped;
         switch (type) {
             case SENSOR_HRM: {
-                EncodableList wrapped = {EncodableValue("heartRate"), EncodableValue(event->values[0])};
-                auto arguments = std::make_unique<EncodableValue>(wrapped);
-                channel_->InvokeMethod("dataReceived", move(arguments));
+                wrapped = {EncodableValue("heartRate"), EncodableValue(event->values[0])};
                 break;
             }
             case SENSOR_HUMAN_PEDOMETER: {
+                wrapped = {
+                        EncodableValue("pedometer"),
+                        EncodableValue(event->values[0]),
+                        EncodableValue(event->values[3]),
+                        EncodableValue(event->values[4]),
+                        EncodableValue(event->values[5]),
+                };
                 break;
             }
             default: {
                 dlog_print(DLOG_ERROR, LOG_TAG, "Unknown event");
+                return;
             }
         }
+
+        auto arguments = std::make_unique<EncodableValue>(wrapped);
+        channel_->InvokeMethod("dataReceived", move(arguments));
     }
 
     void stop() {
-        sensor_listener_stop(hrListener);
-        sensor_destroy_listener(hrListener);
+        for_each(sensorListeners.begin(), sensorListeners.end(), stopListener);
+        sensorListeners.clear();
+    }
+
+    static void stopListener(sensor_listener_h listener) {
+        sensor_listener_stop(listener);
+        sensor_destroy_listener(listener);
     }
 
     static unique_ptr<MethodChannel<EncodableValue>> channel_;
