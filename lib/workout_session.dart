@@ -30,19 +30,36 @@ class _WorkoutSession {
   Future<dynamic> _handleMessage(MethodCall call) {
     try {
       final List<dynamic> arguments = call.arguments as List<dynamic>;
+      final sensorString = arguments[0] as String;
+      final values = arguments.sublist(1).map((e) => e as double).toList();
 
-      _streamController.add(
-        WorkoutReading._(
-          EnumToString.fromString(WorkoutSensor.values, arguments[0]) ??
-              WorkoutSensor.unknown,
-          // For some reason you can't cast List<dynamic> to List<double>
-          (arguments[1] as List<dynamic>).map((e) => e as double).toList(),
-        ),
-      );
-      return Future<void>.value();
+      final sensor =
+          EnumToString.fromString(WorkoutSensor.values, sensorString) ??
+              WorkoutSensor.unknown;
+
+      final Map<WorkoutFeature, double> features = Map();
+      switch (sensor) {
+        case WorkoutSensor.unknown:
+          // Ignore these
+          return Future.value();
+        case WorkoutSensor.heartRate:
+          features[WorkoutFeature.heartRate] = values[0];
+          break;
+        case WorkoutSensor.pedometer:
+          features[WorkoutFeature.steps] = values[0];
+          features[WorkoutFeature.distance] = values[1];
+          features[WorkoutFeature.calories] = values[2];
+          features[WorkoutFeature.speed] = values[3];
+          break;
+      }
+
+      features.entries
+          .map((e) => WorkoutReading._(sensor, e.key, e.value))
+          .forEach((e) => _streamController.add(e));
+      return Future.value();
     } catch (e) {
       print(e);
-      return Future<void>.error(e);
+      return Future.error(e);
     }
   }
 }

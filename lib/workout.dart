@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:io' show Platform;
 
 part 'workout_reading.dart';
 
@@ -21,7 +20,8 @@ class Workout {
   Workout() {
     _session._stream.listen(
       (event) => _streamController.add(
-        WorkoutReading._(event.sensor, event.values),
+        // Not sure why not making this shorthand makes the analyzer happier
+        WorkoutReading._(event.sensor, event.feature, event.value),
       ),
     );
   }

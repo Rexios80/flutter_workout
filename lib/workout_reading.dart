@@ -7,22 +7,42 @@ class WorkoutReading {
   /// The sensor the data was collected from.
   final WorkoutSensor sensor;
 
-  /// The value of the sensor reading.
-  final List<double> values;
+  /// The type of data collected.
+  final WorkoutFeature feature;
 
-  WorkoutReading._(this.sensor, this.values);
+  /// The value of the sensor reading.
+  final double value;
+
+  WorkoutReading._(this.sensor, this.feature, this.value);
 }
 
 enum WorkoutSensor {
   /// An unknown sensor type
   unknown,
 
-  /// Heart rate in bpm
+  /// Heart rate
   heartRate,
+
+  /// Pedometer (steps, distance, calories, speed)
+  pedometer,
+}
+
+enum WorkoutFeature {
+  /// An unknown workout feature
+  unknown,
+
+  /// Heart rate
+  heartRate,
+
+  /// Steps taken
+  steps,
+
+  /// Distance traveled in meters
+  distance,
 
   /// Calories burned
   calories,
 
-  /// Pedometer (steps, distance, speed)
-  pedometer,
+  /// Speed in km/h
+  speed,
 }

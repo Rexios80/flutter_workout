@@ -140,7 +140,8 @@ private:
             case SENSOR_HRM: {
                 EncodableList heartRate = {
                         EncodableValue("heartRate"),
-                        EncodableValue(EncodableList({EncodableValue(event->values[0])}))};
+                        EncodableValue(event->values[0]),
+                };
                 sendData(heartRate);
                 break;
             }
@@ -151,16 +152,12 @@ private:
                 // 5: speed
                 EncodableList pedometer = {
                         EncodableValue("pedometer"),
-                        EncodableValue(EncodableList({EncodableValue(event->values[0]),
-                                                      EncodableValue(event->values[3]),
-                                                      EncodableValue(event->values[5])})),
+                        EncodableValue(event->values[0]),
+                        EncodableValue(event->values[3]),
+                        EncodableValue(event->values[4]),
+                        EncodableValue(event->values[5]),
                 };
                 sendData(pedometer);
-
-                EncodableList calories = {
-                        EncodableValue("calories"),
-                        EncodableValue(EncodableList({EncodableValue(event->values[4])}))
-                };
                 break;
             }
             default: {
