@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/services.dart';
@@ -21,16 +22,16 @@ class Workout {
     _session._stream.listen(
       (event) => _streamController.add(
         // Not sure why not making this shorthand makes the analyzer happier
-        WorkoutReading._(event.sensor, event.feature, event.value),
+        WorkoutReading._(event.feature, event.value),
       ),
     );
   }
 
-  /// Starts a workout session with the specified [sensors] enabled.
+  /// Starts a workout session with the specified [features] enabled.
   ///
   /// Returns [Future.error] if starting the session fails.
-  Future<void> start(List<WorkoutSensor> sensors) async {
-    return _session._start(sensors);
+  Future<void> start(List<WorkoutFeature> features) async {
+    return _session._start(features);
   }
 
   /// Stops the workout session and sensor data collection.

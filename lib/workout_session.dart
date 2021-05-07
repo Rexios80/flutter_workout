@@ -2,6 +2,7 @@ part of 'workout.dart';
 
 class _WorkoutSession {
   final MethodChannel _channel;
+  late List<WorkoutFeature> _features;
 
   _WorkoutSession(this._channel) {
     _channel.setMethodCallHandler(_handleMessage);
@@ -14,13 +15,58 @@ class _WorkoutSession {
     return _streamController.stream;
   }
 
-  Future<void> _start(List<WorkoutSensor> sensors) async {
-    final PermissionStatus status = await Permission.sensors.request();
-    if (status.isDenied || status.isPermanentlyDenied) {
-      return Future<void>.error('Health permissions not granted');
+  Future<void> _start(List<WorkoutFeature> features) async {
+    _features = features;
+
+    final List<String> sensors = [];
+    if (Platform.isAndroid) {
+      if (features.contains(WorkoutFeature.heartRate)) {
+        final PermissionStatus status = await Permission.sensors.request();
+        if (status.isGranted) {
+          sensors.add(EnumToString.convertToString(WorkoutFeature.heartRate));
+        }
+      }
+      if (features.contains(WorkoutFeature.calories) ||
+          features.contains(WorkoutFeature.steps)) {
+        final PermissionStatus status =
+            await Permission.activityRecognition.request();
+        if (status.isGranted) {
+          if (features.contains(WorkoutFeature.calories)) {
+            sensors.add(EnumToString.convertToString(WorkoutFeature.calories));
+          }
+          if (features.contains(WorkoutFeature.steps)) {
+            sensors.add(EnumToString.convertToString(WorkoutFeature.steps));
+          }
+        }
+      }
+      if (features.contains(WorkoutFeature.distance) ||
+          features.contains(WorkoutFeature.speed)) {
+        final PermissionStatus status = await Permission.location.request();
+        if (status.isGranted) {
+          if (features.contains(WorkoutFeature.distance)) {
+            sensors.add(EnumToString.convertToString(WorkoutFeature.distance));
+          }
+          if (features.contains(WorkoutFeature.speed)) {
+            sensors.add(EnumToString.convertToString(WorkoutFeature.speed));
+          }
+        }
+      }
+    } else {
+      // This is Tizen
+      final PermissionStatus status = await Permission.sensors.request();
+      if (status.isGranted) {
+        if (features.contains(WorkoutFeature.heartRate)) {
+          sensors.add(EnumToString.convertToString(WorkoutFeature.heartRate));
+        }
+        if (features.contains(WorkoutFeature.calories) ||
+            features.contains(WorkoutFeature.steps) ||
+            features.contains(WorkoutFeature.distance) ||
+            features.contains(WorkoutFeature.speed)) {
+          sensors.add('pedometer'); // Why? Ask Tizen.
+        }
+      }
     }
-    return _channel.invokeMethod<void>(
-        'start', sensors.map(EnumToString.convertToString).toList());
+    return _channel.invokeMethod<void>('start', sensors);
   }
 
   Future<void> _stop() async {
@@ -30,32 +76,21 @@ class _WorkoutSession {
   Future<dynamic> _handleMessage(MethodCall call) {
     try {
       final List<dynamic> arguments = call.arguments as List<dynamic>;
-      final sensorString = arguments[0] as String;
-      final values = arguments.sublist(1).map((e) => e as double).toList();
+      final featureString = arguments[0] as String;
+      final value = arguments[1] as double;
 
-      final sensor =
-          EnumToString.fromString(WorkoutSensor.values, sensorString) ??
-              WorkoutSensor.unknown;
-
-      final Map<WorkoutFeature, double> features = Map();
-      switch (sensor) {
-        case WorkoutSensor.unknown:
-          // Ignore these
-          return Future.value();
-        case WorkoutSensor.heartRate:
-          features[WorkoutFeature.heartRate] = values[0];
-          break;
-        case WorkoutSensor.pedometer:
-          features[WorkoutFeature.steps] = values[0];
-          features[WorkoutFeature.distance] = values[1];
-          features[WorkoutFeature.calories] = values[2];
-          features[WorkoutFeature.speed] = values[3];
-          break;
+      if (!_features
+          .map(EnumToString.convertToString)
+          .contains(featureString)) {
+        // Don't send features the developer didn't ask for (ahem... Tizen)
+        return Future.value();
       }
 
-      features.entries
-          .map((e) => WorkoutReading._(sensor, e.key, e.value))
-          .forEach((e) => _streamController.add(e));
+      final feature =
+          EnumToString.fromString(WorkoutFeature.values, featureString) ??
+              WorkoutFeature.unknown;
+
+      _streamController.add(WorkoutReading._(feature, value));
       return Future.value();
     } catch (e) {
       print(e);

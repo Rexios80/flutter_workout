@@ -15,7 +15,7 @@ class _MyAppState extends State<MyApp> {
 
   _MyAppState() {
     final workout = Workout();
-    workout.start([WorkoutSensor.heartRate, WorkoutSensor.pedometer]);
+    workout.start([WorkoutFeature.heartRate]);
     workout.stream.listen((event) {
       print('${event.feature}: ${event.value}');
       if (event.feature == WorkoutFeature.heartRate) {

@@ -150,14 +150,29 @@ private:
                 // 3: distance
                 // 4: calories (why is this in pedometer data?)
                 // 5: speed
-                EncodableList pedometer = {
-                        EncodableValue("pedometer"),
+                EncodableList steps = {
+                        EncodableValue("steps"),
                         EncodableValue(event->values[0]),
+                };
+                sendData(steps);
+
+                EncodableList distance = {
+                        EncodableValue("distance"),
                         EncodableValue(event->values[3]),
+                };
+                sendData(distance);
+
+                EncodableList calories = {
+                        EncodableValue("calories"),
                         EncodableValue(event->values[4]),
+                };
+                sendData(calories);
+
+                EncodableList speed = {
+                        EncodableValue("speed"),
                         EncodableValue(event->values[5]),
                 };
-                sendData(pedometer);
+                sendData(speed);
                 break;
             }
             default: {
