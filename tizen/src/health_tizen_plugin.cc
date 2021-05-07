@@ -140,20 +140,22 @@ private:
         sensor_type_e type;
         sensor_get_type(sensor, &type);
 
-        EncodableList wrapped;
         switch (type) {
             case SENSOR_HRM: {
-                wrapped = {EncodableValue("heartRate"), EncodableValue(event->values[0])};
+                EncodableList wrapped = {EncodableValue("heartRate"),
+                           EncodableValue(EncodableList({EncodableValue(event->values[0])}))};
+                sendData(wrapped);
                 break;
             }
             case SENSOR_HUMAN_PEDOMETER: {
-                wrapped = {
+                EncodableList wrapped = {
                         EncodableValue("pedometer"),
-                        EncodableValue(event->values[0]),
-                        EncodableValue(event->values[3]),
-                        EncodableValue(event->values[4]),
-                        EncodableValue(event->values[5]),
+                        EncodableValue(EncodableList({EncodableValue(event->values[0]),
+                                                      EncodableValue(event->values[3]),
+                                                      EncodableValue(event->values[4]),
+                                                      EncodableValue(event->values[5])})),
                 };
+                sendData(wrapped);
                 break;
             }
             default: {
@@ -161,8 +163,10 @@ private:
                 return;
             }
         }
+    }
 
-        auto arguments = std::make_unique<EncodableValue>(wrapped);
+    static void sendData(EncodableList data) {
+        auto arguments = std::make_unique<EncodableValue>(data);
         channel_->InvokeMethod("dataReceived", move(arguments));
     }
 
