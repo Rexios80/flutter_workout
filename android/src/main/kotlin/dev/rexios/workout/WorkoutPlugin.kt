@@ -9,7 +9,6 @@ import com.google.android.gms.fitness.data.DataType
 import com.google.android.gms.fitness.request.OnDataPointListener
 import com.google.android.gms.fitness.request.SensorRequest
 import io.flutter.Log
-import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -25,7 +24,7 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private val googleFitPermissionsRequestCode = 1
 
     private lateinit var channel: MethodChannel
-    private lateinit var activity: FlutterActivity
+    private lateinit var activity: Activity
 
     private lateinit var fitnessOptions: FitnessOptions
     private val dataTypes = mutableListOf<DataType>()
