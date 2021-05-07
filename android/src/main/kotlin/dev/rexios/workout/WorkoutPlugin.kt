@@ -88,7 +88,7 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        activity = binding.activity as FlutterActivity
+        activity = binding.activity
         binding.addActivityResultListener { requestCode, resultCode, data ->
             when (resultCode) {
                 Activity.RESULT_OK -> when (requestCode) {
