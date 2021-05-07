@@ -9,8 +9,7 @@ Run a workout session and get live health data from Wear OS and Tizen.
 build.gradle:
 `minSdkVersion 23`
 
-AndroidManifest.xml:
-`<uses-permission android:name="android.permission.BODY_SENSORS" />`
+https://developers.google.com/fit/android/get-started
 
 ### Tizen
 
@@ -23,6 +22,16 @@ Make the following changes to `tizen/tizen-manifest.xml`:
         <privilege>http://tizen.org/privilege/healthinfo</privilege>
     </privileges>
     <feature name="http://tizen.org/feature/sensor.heart_rate_monitor">true</feature>
+    <feature name="http://tizen.org/feature/sensor.pedometer">true</feature>
 </manifest>
 ```
 
+## Supported data types
+
+| Feature     | Wear OS     | Tizen       |
+| ----------- | ----------- | ----------- |
+| Heart rate  | Yes         | Yes         |
+| Calories    | Yes         | Yes         |
+| Step count  | Yes         | Yes         |
+| Speed       | Yes         | Yes         |
+| Distance    | Yes         | Yes         |
