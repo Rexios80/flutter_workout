@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="dev.rexios.workout_example">
 
-    <uses-permission android:name="android.permission.BODY_SENSORS" />
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="workout_example">
