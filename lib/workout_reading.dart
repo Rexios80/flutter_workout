@@ -8,15 +8,21 @@ class WorkoutReading {
   final WorkoutSensor sensor;
 
   /// The value of the sensor reading.
-  final double value;
+  final List<double> values;
 
-  WorkoutReading._(this.sensor, this.value);
+  WorkoutReading._(this.sensor, this.values);
 }
 
 enum WorkoutSensor {
   /// An unknown sensor type
   unknown,
 
-  /// Heart rate sensor
+  /// Heart rate in bpm
   heartRate,
+
+  /// Calories burned
+  calories,
+
+  /// Pedometer (steps, distance, speed)
+  pedometer,
 }

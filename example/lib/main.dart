@@ -17,10 +17,10 @@ class _MyAppState extends State<MyApp> {
     final workout = Workout();
     workout.start([WorkoutSensor.heartRate]);
     workout.stream.listen((event) {
-      print('${event.sensor}: ${event.value}');
+      print('${event.sensor}: ${event.values}');
       if (event.sensor == WorkoutSensor.heartRate) {
         setState(() {
-          heartRate = event.value;
+          heartRate = event.values[0];
         });
       }
     });
