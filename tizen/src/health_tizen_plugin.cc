@@ -131,10 +131,6 @@ private:
         return "";
     }
 
-    string startPedometer() {
-        return "";
-    }
-
     static void on_sensor_event(sensor_h sensor, sensor_event_s *event, void *user_data) {
         // Select a specific sensor with a sensor handle
         sensor_type_e type;

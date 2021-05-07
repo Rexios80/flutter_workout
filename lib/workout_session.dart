@@ -35,7 +35,8 @@ class _WorkoutSession {
         WorkoutReading._(
           EnumToString.fromString(WorkoutSensor.values, arguments[0]) ??
               WorkoutSensor.unknown,
-          arguments[1],
+          // For some reason you can't cast List<dynamic> to List<double>
+          (arguments[1] as List<dynamic>).map((e) => e as double).toList(),
         ),
       );
       return Future<void>.value();
