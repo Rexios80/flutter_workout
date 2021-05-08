@@ -168,9 +168,10 @@ private:
                 };
                 sendData(calories);
 
+                // Convert km/h to m/s
                 EncodableList speed = {
                         EncodableValue("speed"),
-                        EncodableValue(event->values[5]),
+                        EncodableValue(event->values[5] * 0.277778),
                 };
                 sendData(speed);
                 break;
