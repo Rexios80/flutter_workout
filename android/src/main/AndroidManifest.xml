@@ -1,14 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.rexios.workout">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <queries>
         <package android:name="com.google.android.wearable.healthservices" />
     </queries>
 
-    <service android:name="changjoopark.com.flutter_foreground_plugin.FlutterForegroundService"/>
-
-    <uses-sdk
-        android:minSdkVersion="30"
-        tools:overrideLibrary="changjoopark.com.flutter_foreground_plugin" />
 </manifest>

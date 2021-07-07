@@ -3,8 +3,8 @@ import 'dart:io' show Platform;
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_foreground_plugin/flutter_foreground_plugin.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_background/flutter_background.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 part 'workout_reading.dart';

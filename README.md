@@ -10,8 +10,6 @@ Health Services for Wear OS are currently in developer preview
 build.gradle:
 `minSdkVersion 30`
 
-Create `android/app/src/main/res/drawable/flutter_workout_service_icon.png` with your desired foreground service icon.
-
 ### Tizen
 
 This plugin requires Tizen 5.5+.

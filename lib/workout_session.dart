@@ -42,7 +42,7 @@ class _WorkoutSession {
 
   Future<void> _stop() async {
     if (Platform.isAndroid) {
-      FlutterForegroundPlugin.stopForegroundService();
+      await FlutterBackground.disableBackgroundExecution();
     }
     return _channel.invokeMethod<void>('stop');
   }
@@ -74,11 +74,14 @@ class _WorkoutSession {
 
   void startForegroundService() async {
     final packageInfo = await PackageInfo.fromPlatform();
-    await FlutterForegroundPlugin.startForegroundService(
-      holdWakeLock: true,
-      title: packageInfo.appName,
-      content: '${packageInfo.appName} is running a workout session',
-      iconName: 'flutter_workout_service_icon',
+
+    final androidConfig = FlutterBackgroundAndroidConfig(
+      notificationTitle: packageInfo.appName,
+      notificationText:
+          '${packageInfo.appName} is running a workout session',
+      notificationImportance: AndroidNotificationImportance.Default,
     );
+    await FlutterBackground.initialize(androidConfig: androidConfig);
+    await FlutterBackground.enableBackgroundExecution();
   }
 }
