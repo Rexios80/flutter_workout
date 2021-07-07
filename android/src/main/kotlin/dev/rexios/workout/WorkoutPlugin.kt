@@ -31,6 +31,11 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private val dataTypes = mutableListOf<DataType>()
     private lateinit var healthClient: HealthServicesClient
 
+    // Since the system gives these to us in delta values we have to keep track of the total
+    private var calories = 0.0
+    private var steps = 0.0
+    private var distance = 0.0
+
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "workout")
         channel.setMethodCallHandler(this)
@@ -71,18 +76,27 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                         "dataReceived",
                         listOf("heartRate", dataPoint.value.asDouble())
                 )
-                DataType.AGGREGATE_CALORIES_EXPENDED -> channel.invokeMethod(
-                        "dataReceived",
-                        listOf("calories", dataPoint.value.asDouble())
-                )
-                DataType.AGGREGATE_STEP_COUNT -> channel.invokeMethod(
-                        "dataReceived",
-                        listOf("steps", dataPoint.value.asDouble())
-                )
-                DataType.AGGREGATE_DISTANCE -> channel.invokeMethod(
-                        "dataReceived",
-                        listOf("distance", dataPoint.value.asDouble())
-                )
+                DataType.TOTAL_CALORIES -> {
+                    calories += dataPoint.value.asDouble()
+                    channel.invokeMethod(
+                            "dataReceived",
+                            listOf("calories", calories)
+                    )
+                }
+                DataType.STEPS -> {
+                    steps += dataPoint.value.asDouble()
+                    channel.invokeMethod(
+                            "dataReceived",
+                            listOf("steps", steps.toInt())
+                    )
+                }
+                DataType.DISTANCE -> {
+                    distance += dataPoint.value.asDouble()
+                    channel.invokeMethod(
+                            "dataReceived",
+                            listOf("distance", distance)
+                    )
+                }
                 DataType.SPEED -> channel.invokeMethod(
                         "dataReceived",
                         listOf("speed", dataPoint.value.asDouble())
@@ -98,13 +112,13 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             dataTypes.add(DataType.HEART_RATE_BPM)
         }
         if (arguments.contains("calories")) {
-            dataTypes.add(DataType.AGGREGATE_CALORIES_EXPENDED)
+            dataTypes.add(DataType.TOTAL_CALORIES)
         }
         if (arguments.contains("steps")) {
-            dataTypes.add(DataType.AGGREGATE_STEP_COUNT)
+            dataTypes.add(DataType.STEPS)
         }
         if (arguments.contains("distance")) {
-            dataTypes.add(DataType.AGGREGATE_DISTANCE)
+            dataTypes.add(DataType.DISTANCE)
         }
         if (arguments.contains("speed")) {
             dataTypes.add(DataType.SPEED)
@@ -119,6 +133,10 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun stop() {
+        calories = 0.0
+        steps = 0.0
+        distance = 0.0
+
         // Unregister the callback.
         lifecycleScope.launch {
             dataTypes.forEach {
