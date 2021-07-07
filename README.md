@@ -10,6 +10,8 @@ Health Services for Wear OS are currently in developer preview
 build.gradle:
 `minSdkVersion 30`
 
+[Add an ambient screen to your watch app](https://developer.android.com/training/wearables/health-services/active#maintain-presence)
+
 ### Tizen
 
 This plugin requires Tizen 5.5+.
@@ -31,6 +33,6 @@ Make the following changes to `tizen/tizen-manifest.xml`:
 | ----------- | ----------- | ----------- |
 | Heart rate  | Yes         | Yes         |
 | Calories    | Yes         | Yes         |
-| Step count  | Yes         | Yes         |
-| Speed       | Yes         | Yes         |
-| Distance    | Yes         | Yes         |
+| Step count  | Untested    | Yes         |
+| Speed       | Untested    | Yes         |
+| Distance    | Untested    | Yes         |
