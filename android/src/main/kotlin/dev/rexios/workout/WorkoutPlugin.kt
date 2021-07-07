@@ -1,14 +1,14 @@
 package dev.rexios.workout
 
-import android.app.Activity
 import androidx.annotation.NonNull
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.fitness.Fitness
-import com.google.android.gms.fitness.FitnessOptions
-import com.google.android.gms.fitness.data.DataType
-import com.google.android.gms.fitness.request.OnDataPointListener
-import com.google.android.gms.fitness.request.SensorRequest
-import io.flutter.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.health.services.client.HealthServices
+import androidx.health.services.client.HealthServicesClient
+import androidx.health.services.client.MeasureCallback
+import androidx.health.services.client.data.Availability
+import androidx.health.services.client.data.DataPoint
+import androidx.health.services.client.data.DataType
+import androidx.lifecycle.lifecycleScope
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -16,18 +16,17 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.launch
 
 /** WorkoutPlugin */
 class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private val tag = "WorkoutPlugin"
-    private val googleFitPermissionsRequestCode = 1
 
     private lateinit var channel: MethodChannel
-    private lateinit var activity: Activity
+    private lateinit var activity: AppCompatActivity
 
-    private lateinit var fitnessOptions: FitnessOptions
     private val dataTypes = mutableListOf<DataType>()
+    private lateinit var healthClient: HealthServicesClient
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "workout")
@@ -46,108 +45,83 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.setMethodCallHandler(null)
     }
 
-    private fun start(arguments: List<String>) {
-        dataTypes.clear()
-
-        if (arguments.contains("heartRate")) {
-            dataTypes.add(DataType.TYPE_HEART_RATE_BPM)
-        }
-        if (arguments.contains("calories")) {
-            dataTypes.add(DataType.TYPE_CALORIES_EXPENDED)
-        }
-        if (arguments.contains("steps")) {
-            dataTypes.add(DataType.TYPE_STEP_COUNT_DELTA)
-        }
-        if (arguments.contains("distance")) {
-            dataTypes.add(DataType.TYPE_DISTANCE_DELTA)
-        }
-        if (arguments.contains("speed")) {
-            dataTypes.add(DataType.TYPE_SPEED)
-        }
-
-        val fitnessOptionsBuilder = FitnessOptions.builder()
-        dataTypes.forEach { fitnessOptionsBuilder.addDataType(it) }
-        fitnessOptions = fitnessOptionsBuilder.build()
-
-        val account = GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
-
-        if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
-            GoogleSignIn.requestPermissions(
-                activity,
-                googleFitPermissionsRequestCode,
-                account,
-                fitnessOptions
-            )
-        } else {
-            startGoogleFit()
-        }
-    }
-
-    private fun stop() {
-        stopGoogleFit()
-    }
-
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        activity = binding.activity
-        binding.addActivityResultListener { requestCode, resultCode, data ->
-            when (resultCode) {
-                Activity.RESULT_OK -> when (requestCode) {
-                    googleFitPermissionsRequestCode -> startGoogleFit()
-                }
-            }
-            return@addActivityResultListener true
-        }
-    }
-
-    private val listener = OnDataPointListener { dataPoint ->
-        when (dataPoint.dataType) {
-            DataType.TYPE_HEART_RATE_BPM -> {
-
-            }
-        }
-        for (field in dataPoint.dataType.fields) {
-            val value = dataPoint.getValue(field)
-            Log.i(tag, "Detected DataPoint field: ${field.name}")
-            Log.i(tag, "Detected DataPoint value: $value")
-        }
-    }
-
-    private fun startGoogleFit() {
-        val sensorClient = Fitness.getSensorsClient(
-            activity,
-            GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
-        )
-
-        dataTypes.forEach {
-            sensorClient.add(
-                SensorRequest.Builder()
-                    .setDataType(it)
-                    .setSamplingRate(1, TimeUnit.SECONDS)
-                    .build(),
-                listener
-            ).addOnSuccessListener {
-                Log.i(tag, "Listener registered!")
-            }.addOnFailureListener {
-                Log.e(tag, "Listener not registered.")
-            }
-        }
-    }
-
-    private fun stopGoogleFit() {
-        Fitness.getSensorsClient(
-            activity,
-            GoogleSignIn.getAccountForExtension(activity, fitnessOptions)
-        )
-            .remove(listener)
-            .addOnSuccessListener {
-                Log.i(tag, "Listener was removed!")
-            }
-            .addOnFailureListener {
-                Log.i(tag, "Listener was not removed.")
-            }
+        activity = binding.activity as AppCompatActivity
+        healthClient = HealthServices.getClient(activity)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {}
     override fun onReattachedToActivityForConfigChanges(p0: ActivityPluginBinding) {}
     override fun onDetachedFromActivity() {}
+
+    private val dataCallback = object : MeasureCallback {
+        override fun onAvailabilityChanged(dataType: DataType, availability: Availability) {
+            // Handle availability change.
+        }
+
+        override fun onData(data: List<DataPoint>) {
+            val dataPoint = data.first()
+
+            when (dataPoint.dataType) {
+                DataType.HEART_RATE_BPM -> channel.invokeMethod(
+                    "dataReceived",
+                    listOf("heartRate", dataPoint.dataType)
+                )
+                DataType.AGGREGATE_CALORIES_EXPENDED -> channel.invokeMethod(
+                    "dataReceived",
+                    listOf("calories", dataPoint.dataType)
+                )
+                DataType.AGGREGATE_STEP_COUNT -> channel.invokeMethod(
+                    "dataReceived",
+                    listOf("steps", dataPoint.dataType)
+                )
+                DataType.AGGREGATE_DISTANCE -> channel.invokeMethod(
+                    "dataReceived",
+                    listOf("distance", dataPoint.dataType)
+                )
+                DataType.SPEED -> channel.invokeMethod(
+                    "dataReceived",
+                    listOf("speed", dataPoint.dataType)
+                )
+            }
+
+
+        }
+    }
+
+    private fun start(arguments: List<String>) {
+        dataTypes.clear()
+
+        if (arguments.contains("heartRate")) {
+            dataTypes.add(DataType.HEART_RATE_BPM)
+        }
+        if (arguments.contains("calories")) {
+            dataTypes.add(DataType.AGGREGATE_CALORIES_EXPENDED)
+        }
+        if (arguments.contains("steps")) {
+            dataTypes.add(DataType.AGGREGATE_STEP_COUNT)
+        }
+        if (arguments.contains("distance")) {
+            dataTypes.add(DataType.AGGREGATE_DISTANCE)
+        }
+        if (arguments.contains("speed")) {
+            dataTypes.add(DataType.SPEED)
+        }
+
+        // Register the callback.
+        activity.lifecycleScope.launch {
+            dataTypes.forEach {
+                healthClient.measureClient.registerCallback(it, dataCallback)
+            }
+        }
+    }
+
+    private fun stop() {
+        // Unregister the callback.
+        activity.lifecycleScope.launch {
+            dataTypes.forEach {
+                healthClient.measureClient.unregisterCallback(it, dataCallback)
+            }
+        }
+    }
 }

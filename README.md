@@ -5,11 +5,10 @@ Run a workout session and get live health data from Wear OS and Tizen.
 ## Getting Started
 
 ### Wear OS
+Health Services for Wear OS are currently in developer preview
 
 build.gradle:
-`minSdkVersion 26`
-
-https://developers.google.com/fit/android/get-started
+`minSdkVersion 30`
 
 ### Tizen
 
