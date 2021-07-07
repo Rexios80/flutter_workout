@@ -1,6 +1,6 @@
 name: workout
 description: Run a workout session on Wear OS and Tizen. Get data such as heart rate in real time.
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/Rexios80/flutter_workout
 
 environment:
@@ -14,6 +14,8 @@ dependencies:
   enum_to_string: ^2.0.1
   permission_handler: ^7.1.0
   permission_handler_tizen: ^1.0.0
+  flutter_foreground_plugin: ^0.8.0
+  package_info_plus: ^1.0.3
 
 flutter:
   plugin:

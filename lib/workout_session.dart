@@ -20,37 +20,8 @@ class _WorkoutSession {
 
     final List<String> sensors = [];
     if (Platform.isAndroid) {
-      if (features.contains(WorkoutFeature.heartRate)) {
-        final PermissionStatus status = await Permission.sensors.request();
-        if (status.isGranted) {
-          sensors.add(EnumToString.convertToString(WorkoutFeature.heartRate));
-        }
-      }
-      if (features.contains(WorkoutFeature.calories) ||
-          features.contains(WorkoutFeature.steps)) {
-        final PermissionStatus status =
-            await Permission.activityRecognition.request();
-        if (status.isGranted) {
-          if (features.contains(WorkoutFeature.calories)) {
-            sensors.add(EnumToString.convertToString(WorkoutFeature.calories));
-          }
-          if (features.contains(WorkoutFeature.steps)) {
-            sensors.add(EnumToString.convertToString(WorkoutFeature.steps));
-          }
-        }
-      }
-      if (features.contains(WorkoutFeature.distance) ||
-          features.contains(WorkoutFeature.speed)) {
-        final PermissionStatus status = await Permission.location.request();
-        if (status.isGranted) {
-          if (features.contains(WorkoutFeature.distance)) {
-            sensors.add(EnumToString.convertToString(WorkoutFeature.distance));
-          }
-          if (features.contains(WorkoutFeature.speed)) {
-            sensors.add(EnumToString.convertToString(WorkoutFeature.speed));
-          }
-        }
-      }
+      features.forEach((e) => sensors.add(EnumToString.convertToString(e)));
+      startForegroundService();
     } else {
       // This is Tizen
       final PermissionStatus status = await Permission.sensors.request();
@@ -70,6 +41,9 @@ class _WorkoutSession {
   }
 
   Future<void> _stop() async {
+    if (Platform.isAndroid) {
+      FlutterForegroundPlugin.stopForegroundService();
+    }
     return _channel.invokeMethod<void>('stop');
   }
 
@@ -96,5 +70,15 @@ class _WorkoutSession {
       print(e);
       return Future.error(e);
     }
+  }
+
+  void startForegroundService() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    await FlutterForegroundPlugin.startForegroundService(
+      holdWakeLock: true,
+      title: packageInfo.appName,
+      content: '${packageInfo.appName} is running a workout session',
+      iconName: 'flutter_workout_service_icon',
+    );
   }
 }

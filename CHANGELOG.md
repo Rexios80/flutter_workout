@@ -9,3 +9,6 @@ Initial release
 
 ## 0.0.4
 Converted to Health Services for Wear OS (untested)
+
+## 0.0.5
+Run a foreground service on Android (untested)
