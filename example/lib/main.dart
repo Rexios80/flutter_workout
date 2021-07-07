@@ -11,17 +11,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final workout = Workout();
+  final features = [
+    WorkoutFeature.heartRate,
+    WorkoutFeature.calories,
+    WorkoutFeature.steps,
+    WorkoutFeature.distance,
+    WorkoutFeature.speed,
+  ];
+
   double heartRate = 0;
+  bool started = false;
 
   _MyAppState() {
-    final workout = Workout();
-    workout.start([
-      WorkoutFeature.heartRate,
-      WorkoutFeature.calories,
-      WorkoutFeature.steps,
-      WorkoutFeature.distance,
-      WorkoutFeature.speed,
-    ]);
     workout.stream.listen((event) {
       print('${event.feature}: ${event.value}');
       if (event.feature == WorkoutFeature.heartRate) {
@@ -40,7 +42,24 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Heart rate: $heartRate'),
+          child: Column(
+            children: [
+              Spacer(),
+              Text('Heart rate: $heartRate'),
+              Spacer(),
+              TextButton(
+                onPressed: () => setState(() {
+                  started = !started;
+                  if (started) {
+                    workout.start(features);
+                  } else {
+                    workout.stop();
+                  }
+                }),
+                child: Text(started ? 'Stop' : 'Start'),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -14,8 +14,6 @@ dependencies:
   enum_to_string: ^2.0.1
   permission_handler: ^7.1.0
   permission_handler_tizen: ^1.0.0
-  flutter_background: ^1.0.1
-  package_info_plus: ^1.0.3
 
 flutter:
   plugin:

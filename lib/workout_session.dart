@@ -21,7 +21,6 @@ class _WorkoutSession {
     final List<String> sensors = [];
     if (Platform.isAndroid) {
       features.forEach((e) => sensors.add(EnumToString.convertToString(e)));
-      startForegroundService();
     } else {
       // This is Tizen
       final PermissionStatus status = await Permission.sensors.request();
@@ -41,9 +40,6 @@ class _WorkoutSession {
   }
 
   Future<void> _stop() async {
-    if (Platform.isAndroid) {
-      await FlutterBackground.disableBackgroundExecution();
-    }
     return _channel.invokeMethod<void>('stop');
   }
 
@@ -70,18 +66,5 @@ class _WorkoutSession {
       print(e);
       return Future.error(e);
     }
-  }
-
-  void startForegroundService() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-
-    final androidConfig = FlutterBackgroundAndroidConfig(
-      notificationTitle: packageInfo.appName,
-      notificationText:
-          '${packageInfo.appName} is running a workout session',
-      notificationImportance: AndroidNotificationImportance.Default,
-    );
-    await FlutterBackground.initialize(androidConfig: androidConfig);
-    await FlutterBackground.enableBackgroundExecution();
   }
 }
