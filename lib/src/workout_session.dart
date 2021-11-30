@@ -1,26 +1,38 @@
-part of 'workout.dart';
+import 'dart:async';
+import 'dart:io';
 
-class _WorkoutSession {
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:workout/workout.dart';
+
+/// An internal wrapper for the workout session
+class WorkoutSession {
   final MethodChannel _channel;
   late List<WorkoutFeature> _features;
 
-  _WorkoutSession(this._channel) {
+  /// Create a [WorkoutSession]
+  WorkoutSession(this._channel) {
     _channel.setMethodCallHandler(_handleMessage);
   }
 
   final StreamController<WorkoutReading> _streamController =
       StreamController<WorkoutReading>.broadcast();
 
-  Stream<WorkoutReading> get _stream {
+  /// The stream of [WorkoutReading]s
+  Stream<WorkoutReading> get stream {
     return _streamController.stream;
   }
 
-  Future<void> _start(List<WorkoutFeature> features) async {
+  /// Start the workout session
+  Future<void> start(List<WorkoutFeature> features) async {
     _features = features;
 
     final List<String> sensors = [];
     if (Platform.isAndroid) {
-      features.forEach((e) => sensors.add(EnumToString.convertToString(e)));
+      for (var e in features) {
+        sensors.add(EnumToString.convertToString(e));
+      }
     } else {
       // This is Tizen
       final PermissionStatus status = await Permission.sensors.request();
@@ -39,7 +51,8 @@ class _WorkoutSession {
     return _channel.invokeMethod<void>('start', sensors);
   }
 
-  Future<void> _stop() async {
+  /// Stop the workout session
+  Future<void> stop() async {
     return _channel.invokeMethod<void>('stop');
   }
 
@@ -60,10 +73,9 @@ class _WorkoutSession {
           EnumToString.fromString(WorkoutFeature.values, featureString) ??
               WorkoutFeature.unknown;
 
-      _streamController.add(WorkoutReading._(feature, value));
+      _streamController.add(WorkoutReading(feature, value));
       return Future.value();
     } catch (e) {
-      print(e);
       return Future.error(e);
     }
   }

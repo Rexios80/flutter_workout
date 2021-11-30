@@ -1,5 +1,4 @@
-part of 'workout.dart';
-
+/// A sensor reading collected from the watch
 class WorkoutReading {
   /// The timestamp of the [WorkoutReading] in milliseconds.
   final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -10,9 +9,11 @@ class WorkoutReading {
   /// The value of the sensor reading.
   final double value;
 
-  WorkoutReading._(this.feature, this.value);
+  /// Constructor
+  WorkoutReading(this.feature, this.value);
 }
 
+/// The features a workout reading can have
 enum WorkoutFeature {
   /// An unknown workout feature
   unknown,
