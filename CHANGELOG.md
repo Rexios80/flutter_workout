@@ -1,3 +1,6 @@
+## 0.2.1
+- Reverted gradle update for plugin
+
 ## 0.2.0
 - Updated linting rules
 - Updated gradle and target sdk
