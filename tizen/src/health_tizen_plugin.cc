@@ -69,7 +69,7 @@ private:
             const EncodableList argumentList = get<EncodableList>(arguments);
             for (int i = 0; i < argumentList.size(); i++) {
                 string stringArgument = get<string>(argumentList[i]);
-                sensor_listener_h listener;
+                sensor_listener_h listener = nullptr;
                 sensorListeners.push_front(listener);
                 if (stringArgument == "heartRate") {
                     error += "" + startSensor(SENSOR_HRM, listener);

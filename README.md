@@ -14,11 +14,11 @@ build.gradle:
 
 ### Tizen
 
-This plugin requires Tizen 5.5+.
+This plugin requires Tizen 4.0+.
 
 Make the following changes to `tizen/tizen-manifest.xml`:
 ```
-<manifest api-version="5.5" ...>
+<manifest api-version="4.0" ...>
     <privileges>
         <privilege>http://tizen.org/privilege/healthinfo</privilege>
     </privileges>

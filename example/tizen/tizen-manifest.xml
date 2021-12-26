@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest api-version="5.5" package="dev.rexios.workout_example" version="1.0.0"
+<manifest api-version="4.0" package="dev.rexios.workout_example" version="1.0.0"
     xmlns="http://tizen.org/ns/packages">
     <profile name="common" />
     <ui-application api-version="4" appid="dev.rexios.workout_example" exec="Runner.dll"
