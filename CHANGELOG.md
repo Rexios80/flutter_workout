@@ -1,3 +1,6 @@
+## 0.3.0
+- Updated Tizen code
+
 ## 0.2.1
 - Reverted gradle update for plugin
 
