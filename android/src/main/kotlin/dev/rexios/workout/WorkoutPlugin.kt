@@ -43,8 +43,14 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
-            "start" -> start(call.arguments as List<String>)
-            "stop" -> stop()
+            "start" -> {
+                start(call.arguments as List<String>)
+                result.success(null)
+            }
+            "stop" -> {
+                stop()
+                result.success(null)
+            }
             else -> result.notImplemented()
         }
     }
