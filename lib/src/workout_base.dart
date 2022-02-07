@@ -1,39 +1,74 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:workout/src/workout_session.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:workout/workout.dart';
 
 /// Base class for flutter_workout
 class Workout {
-  static const MethodChannel _channel = MethodChannel('workout');
+  static const _channel = MethodChannel('workout');
 
   final _streamController = StreamController<WorkoutReading>.broadcast();
-  final _session = WorkoutSession(_channel);
 
-  /// A stream of [WorkoutReading] collected by the workout session.
+  var _currentFeatures = <WorkoutFeature>[];
+
+  /// A stream of [WorkoutReading] collected by the workout session
   Stream<WorkoutReading> get stream => _streamController.stream;
 
   /// Create a [Workout]
   Workout() {
-    _session.stream.listen(
-      (event) => _streamController.add(
-        WorkoutReading(event.feature, event.value),
-      ),
-    );
+    _channel.setMethodCallHandler(_handleMessage);
   }
 
-  /// Starts a workout session with the specified [features] enabled.
-  ///
-  /// Returns [Future.error] if starting the session fails.
+  /// Starts a workout session with the specified [features] enabled
   Future<void> start(List<WorkoutFeature> features) async {
-    return _session.start(features);
+    _currentFeatures = features;
+    final sensors = <String>[];
+    if (Platform.isAndroid) {
+      for (final e in features) {
+        sensors.add(e.name);
+      }
+    } else {
+      // This is Tizen
+      final status = await Permission.sensors.request();
+      if (status.isGranted) {
+        if (features.contains(WorkoutFeature.heartRate)) {
+          sensors.add(WorkoutFeature.heartRate.name);
+        }
+        if (features.contains(WorkoutFeature.calories) ||
+            features.contains(WorkoutFeature.steps) ||
+            features.contains(WorkoutFeature.distance) ||
+            features.contains(WorkoutFeature.speed)) {
+          sensors.add('pedometer'); // Why? Ask Tizen.
+        }
+      }
+    }
+    return _channel.invokeMethod<void>('start', sensors);
   }
 
-  /// Stops the workout session and sensor data collection.
-  ///
-  /// Returns [Future.error] if stopping the session fails.
+  /// Stops the workout session and sensor data collection
   Future<void> stop() {
-    return _session.stop();
+    return _channel.invokeMethod<void>('stop');
+  }
+
+  Future<dynamic> _handleMessage(MethodCall call) {
+    try {
+      final arguments = call.arguments as List<dynamic>;
+      final featureString = arguments[0] as String;
+      final value = arguments[1] as double;
+
+      if (!_currentFeatures.map((e) => e.name).contains(featureString)) {
+        // Don't send features the developer didn't ask for (ahem... Tizen)
+        return Future.value();
+      }
+
+      final feature = WorkoutFeature.values.byName(featureString);
+
+      _streamController.add(WorkoutReading(feature, value));
+      return Future.value();
+    } catch (e) {
+      return Future.error(e);
+    }
   }
 }
