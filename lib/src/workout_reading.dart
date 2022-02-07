@@ -1,7 +1,7 @@
 /// A sensor reading collected from the watch
 class WorkoutReading {
-  /// The timestamp of the [WorkoutReading] in milliseconds.
-  final timestamp = DateTime.now().millisecondsSinceEpoch;
+  /// The timestamp of the [WorkoutReading]
+  final timestamp = DateTime.now();
 
   /// The type of data collected.
   final WorkoutFeature feature;
