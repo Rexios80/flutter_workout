@@ -41,7 +41,19 @@ class Workout {
   }
 
   Future<List<String>> _initSamsungWearOS() async {
-    return [WorkoutFeature.heartRate.name];
+    final sensors = <String>[];
+    if (_currentFeatures.contains(WorkoutFeature.heartRate)) {
+      final sensorsStatus = await Permission.sensors.request();
+      final activityRecognitionStatus =
+          await Permission.activityRecognition.request();
+      final locationStatus = await Permission.location.request();
+      if (sensorsStatus == PermissionStatus.granted &&
+          activityRecognitionStatus == PermissionStatus.granted &&
+          locationStatus == PermissionStatus.granted) {
+        sensors.add(WorkoutFeature.heartRate.name);
+      }
+    }
+    return _initWearOS();
   }
 
   Future<List<String>> _initWearOS() async {

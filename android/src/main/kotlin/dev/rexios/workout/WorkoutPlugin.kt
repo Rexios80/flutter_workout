@@ -1,6 +1,9 @@
 package dev.rexios.workout
 
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import androidx.annotation.NonNull
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.HealthServicesClient
@@ -8,6 +11,7 @@ import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataPoint
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.PassiveMonitoringUpdate
 import androidx.lifecycle.coroutineScope
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -21,9 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /** WorkoutPlugin */
-class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
-    private val tag = "WorkoutPlugin"
-
+class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, BroadcastReceiver() {
     private lateinit var channel: MethodChannel
     private lateinit var activity: Activity
     private lateinit var lifecycleScope: CoroutineScope
@@ -79,33 +81,33 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             when (dataPoint.dataType) {
                 DataType.HEART_RATE_BPM -> channel.invokeMethod(
-                        "dataReceived",
-                        listOf("heartRate", dataPoint.value.asDouble())
+                    "dataReceived",
+                    listOf("heartRate", dataPoint.value.asDouble())
                 )
                 DataType.TOTAL_CALORIES -> {
                     calories += dataPoint.value.asDouble()
                     channel.invokeMethod(
-                            "dataReceived",
-                            listOf("calories", calories)
+                        "dataReceived",
+                        listOf("calories", calories)
                     )
                 }
                 DataType.STEPS -> {
                     steps += dataPoint.value.asDouble()
                     channel.invokeMethod(
-                            "dataReceived",
-                            listOf("steps", steps.toInt())
+                        "dataReceived",
+                        listOf("steps", steps.toInt())
                     )
                 }
                 DataType.DISTANCE -> {
                     distance += dataPoint.value.asDouble()
                     channel.invokeMethod(
-                            "dataReceived",
-                            listOf("distance", distance)
+                        "dataReceived",
+                        listOf("distance", distance)
                     )
                 }
                 DataType.SPEED -> channel.invokeMethod(
-                        "dataReceived",
-                        listOf("speed", dataPoint.value.asDouble())
+                    "dataReceived",
+                    listOf("speed", dataPoint.value.asDouble())
                 )
             }
         }
@@ -148,6 +150,38 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             dataTypes.forEach {
                 healthClient.measureClient.unregisterCallback(it, dataCallback)
             }
+        }
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        val state = PassiveMonitoringUpdate.fromIntent(intent) ?: return
+        // Get the most recent heart rate measurement.
+        val latestDataPoint = state.dataPoints
+            // dataPoints can have multiple types (e.g. if the app registered for multiple types).
+            .filter { it.dataType == DataType.HEART_RATE_BPM }
+            // where accuracy information is available, only show readings that are of medium or
+            // high accuracy. (Where accuracy information isn't available, show the reading if it is
+            // a positive value).
+            .filter {
+                it.accuracy == null ||
+                        setOf(
+                            HrAccuracy.SensorStatus.ACCURACY_MEDIUM,
+                            HrAccuracy.SensorStatus.ACCURACY_HIGH
+                        ).contains((it.accuracy as HrAccuracy).sensorStatus)
+            }
+            .filter {
+                it.value.asDouble() > 0
+            }
+            // HEART_RATE_BPM is a SAMPLE type, so start and end times are the same.
+            .maxByOrNull { it.endDurationFromBoot }
+        // If there were no data points, the previous function returns null.
+            ?: return
+
+        val latestHeartRate = latestDataPoint.value.asDouble() // HEART_RATE_BPM is a Float type.
+        Log.d(TAG, "Received latest heart rate in background: $latestHeartRate")
+
+        runBlocking {
+            repository.storeLatestHeartRate(latestHeartRate)
         }
     }
 }
