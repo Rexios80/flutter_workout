@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workout/workout.dart';
@@ -30,15 +29,15 @@ class WorkoutSession {
 
     final List<String> sensors = [];
     if (Platform.isAndroid) {
-      for (var e in features) {
-        sensors.add(EnumToString.convertToString(e));
+      for (final e in features) {
+        sensors.add(e.name);
       }
     } else {
       // This is Tizen
       final PermissionStatus status = await Permission.sensors.request();
       if (status.isGranted) {
         if (features.contains(WorkoutFeature.heartRate)) {
-          sensors.add(EnumToString.convertToString(WorkoutFeature.heartRate));
+          sensors.add(WorkoutFeature.heartRate.name);
         }
         if (features.contains(WorkoutFeature.calories) ||
             features.contains(WorkoutFeature.steps) ||
@@ -62,16 +61,12 @@ class WorkoutSession {
       final featureString = arguments[0] as String;
       final value = arguments[1] as double;
 
-      if (!_features
-          .map(EnumToString.convertToString)
-          .contains(featureString)) {
+      if (!_features.map((e) => e.name).contains(featureString)) {
         // Don't send features the developer didn't ask for (ahem... Tizen)
         return Future.value();
       }
 
-      final feature =
-          EnumToString.fromString(WorkoutFeature.values, featureString) ??
-              WorkoutFeature.unknown;
+      final feature = WorkoutFeature.values.byName(featureString);
 
       _streamController.add(WorkoutReading(feature, value));
       return Future.value();
