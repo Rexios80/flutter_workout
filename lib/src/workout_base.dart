@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -24,27 +25,44 @@ class Workout {
   /// Starts a workout session with the specified [features] enabled
   Future<void> start(List<WorkoutFeature> features) async {
     _currentFeatures = features;
-    final sensors = <String>[];
+    final List<String> sensors;
     if (Platform.isAndroid) {
-      for (final e in features) {
-        sensors.add(e.name);
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      if (androidInfo.manufacturer == 'samsung') {
+        sensors = await _initSamsungWearOS();
+      } else {
+        sensors = await _initWearOS();
       }
     } else {
       // This is Tizen
-      final status = await Permission.sensors.request();
-      if (status.isGranted) {
-        if (features.contains(WorkoutFeature.heartRate)) {
-          sensors.add(WorkoutFeature.heartRate.name);
-        }
-        if (features.contains(WorkoutFeature.calories) ||
-            features.contains(WorkoutFeature.steps) ||
-            features.contains(WorkoutFeature.distance) ||
-            features.contains(WorkoutFeature.speed)) {
-          sensors.add('pedometer'); // Why? Ask Tizen.
-        }
-      }
+      sensors = await _initTizen();
     }
     return _channel.invokeMethod<void>('start', sensors);
+  }
+
+  Future<List<String>> _initSamsungWearOS() async {
+    return [WorkoutFeature.heartRate.name];
+  }
+
+  Future<List<String>> _initWearOS() async {
+    return _currentFeatures.map((e) => e.name).toList();
+  }
+
+  Future<List<String>> _initTizen() async {
+    final sensors = <String>[];
+    final status = await Permission.sensors.request();
+    if (status.isGranted) {
+      if (_currentFeatures.contains(WorkoutFeature.heartRate)) {
+        sensors.add(WorkoutFeature.heartRate.name);
+      }
+      if (_currentFeatures.contains(WorkoutFeature.calories) ||
+          _currentFeatures.contains(WorkoutFeature.steps) ||
+          _currentFeatures.contains(WorkoutFeature.distance) ||
+          _currentFeatures.contains(WorkoutFeature.speed)) {
+        sensors.add('pedometer'); // Why? Ask Tizen.
+      }
+    }
+    return sensors;
   }
 
   /// Stops the workout session and sensor data collection
