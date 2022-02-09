@@ -27,12 +27,7 @@ class Workout {
     _currentFeatures = features;
     final List<String> sensors;
     if (Platform.isAndroid) {
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-      if (androidInfo.manufacturer == 'samsung') {
-        sensors = await _initSamsungWearOS();
-      } else {
-        sensors = await _initWearOS();
-      }
+      sensors = await _initWearOS();
     } else {
       // This is Tizen
       sensors = await _initTizen();
@@ -40,23 +35,11 @@ class Workout {
     return _channel.invokeMethod<void>('start', sensors);
   }
 
-  Future<List<String>> _initSamsungWearOS() async {
-    final sensors = <String>[];
-    if (_currentFeatures.contains(WorkoutFeature.heartRate)) {
-      final sensorsStatus = await Permission.sensors.request();
-      final activityRecognitionStatus =
-          await Permission.activityRecognition.request();
-      final locationStatus = await Permission.location.request();
-      if (sensorsStatus == PermissionStatus.granted &&
-          activityRecognitionStatus == PermissionStatus.granted &&
-          locationStatus == PermissionStatus.granted) {
-        sensors.add(WorkoutFeature.heartRate.name);
-      }
-    }
-    return _initWearOS();
-  }
-
   Future<List<String>> _initWearOS() async {
+    // TODO: Request necessary permissions based on what features are used
+    await Permission.sensors.request();
+    await Permission.activityRecognition.request();
+    await Permission.location.request();
     return _currentFeatures.map((e) => e.name).toList();
   }
 
