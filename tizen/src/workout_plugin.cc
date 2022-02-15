@@ -44,10 +44,11 @@ private:
     void HandleMethodCall(
             const MethodCall<EncodableValue> &method_call,
             unique_ptr<MethodResult<EncodableValue> > result) {
-        const auto &arguments = *method_call.arguments();
-
         if (method_call.method_name() == "start") {
-            string error = start(arguments);
+            const auto *arguments = get_if<EncodableMap>(method_call.arguments());
+            const auto sensors_it = arguments->find(EncodableValue("sensors"));
+            const auto sensors = get<EncodableList>(sensors_it->second);
+            string error = start(sensors);
             if (error.empty()) {
                 result->Success();
             } else {
@@ -63,19 +64,16 @@ private:
 
     list<sensor_listener_h> sensorListeners;
 
-    string start(const EncodableValue arguments) {
+    string start(const EncodableList sensors) {
         string error = "";
-        if (holds_alternative<EncodableList>(arguments)) {
-            const EncodableList argumentList = get<EncodableList>(arguments);
-            for (int i = 0; i < argumentList.size(); i++) {
-                string stringArgument = get<string>(argumentList[i]);
-                sensor_listener_h listener = nullptr;
-                sensorListeners.push_front(listener);
-                if (stringArgument == "heartRate") {
-                    error += "" + startSensor(SENSOR_HRM, listener);
-                } else if (stringArgument == "pedometer") {
-                    error += "" + startSensor(SENSOR_HUMAN_PEDOMETER, listener);
-                }
+        for (int i = 0; i < sensors.size(); i++) {
+            string stringArgument = get<string>(sensors[i]);
+            sensor_listener_h listener = nullptr;
+            sensorListeners.push_front(listener);
+            if (stringArgument == "heartRate") {
+                error += "" + startSensor(SENSOR_HRM, listener);
+            } else if (stringArgument == "pedometer") {
+                error += "" + startSensor(SENSOR_HUMAN_PEDOMETER, listener);
             }
         }
 

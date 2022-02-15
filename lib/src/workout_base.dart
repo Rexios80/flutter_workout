@@ -31,7 +31,7 @@ class Workout {
       // This is Tizen
       sensors = await _initTizen();
     }
-    return _channel.invokeMethod<void>('start', sensors);
+    return _channel.invokeMethod<void>('start', {'sensors': sensors});
   }
 
   Future<List<String>> _initWearOS() async {
