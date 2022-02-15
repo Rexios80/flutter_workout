@@ -1,4 +1,4 @@
-#include "health_tizen_plugin.h"
+#include "workout_plugin.h"
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar.h>
@@ -17,14 +17,14 @@
 using namespace std;
 using namespace flutter;
 
-class HealthTizenPlugin : public Plugin {
+class WorkoutPlugin : public Plugin {
 public:
     static void RegisterWithRegistrar(PluginRegistrar *registrar) {
-        auto plugin = make_unique<HealthTizenPlugin>(registrar);
+        auto plugin = make_unique<WorkoutPlugin>(registrar);
         registrar->AddPlugin(move(plugin));
     }
 
-    explicit HealthTizenPlugin(PluginRegistrar *registrar) {
+    explicit WorkoutPlugin(PluginRegistrar *registrar) {
         auto channel =
                 make_unique<MethodChannel<EncodableValue> >(
                         registrar->messenger(), "workout",
@@ -38,7 +38,7 @@ public:
         channel_ = std::move(channel);
     }
 
-    ~HealthTizenPlugin() override = default;
+    ~WorkoutPlugin() override = default;
 
 private:
     void HandleMethodCall(
@@ -201,11 +201,11 @@ private:
     static unique_ptr<MethodChannel<EncodableValue>> channel_;
 };
 
-unique_ptr<MethodChannel<EncodableValue>> HealthTizenPlugin::channel_;
+unique_ptr<MethodChannel<EncodableValue>> WorkoutPlugin::channel_;
 
-void HealthTizenPluginRegisterWithRegistrar(
+void WorkoutPluginRegisterWithRegistrar(
         FlutterDesktopPluginRegistrarRef registrar) {
-    HealthTizenPlugin::RegisterWithRegistrar(
+    WorkoutPlugin::RegisterWithRegistrar(
             PluginRegistrarManager::GetInstance()
                     ->GetRegistrar<PluginRegistrar>(registrar));
 }

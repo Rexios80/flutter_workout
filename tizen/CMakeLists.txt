@@ -11,6 +11,6 @@ include_directories(../../../tizen-studio/platforms/tizen-4.0/wearable/rootstrap
 include_directories(../../../tizen-studio/platforms/tizen-4.0/wearable/rootstraps/wearable-4.0-device.core/usr/include/dlog)
 
 add_executable(tizen
-        inc/health_tizen_plugin.h
-        src/health_tizen_plugin.cc
+        inc/workout_plugin.h
+        src/workout_plugin.cc
         src/log.h)

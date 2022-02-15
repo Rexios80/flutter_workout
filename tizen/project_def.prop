@@ -1,12 +1,12 @@
 # See https://docs.tizen.org/application/tizen-studio/native-tools/project-conversion
 # for details.
 
-APPNAME = health_tizen_plugin
+APPNAME = workout_plugin
 type = staticLib
 profile = common-4.0
 
 # Source files
-USER_SRCS += src/health_tizen_plugin.cc
+USER_SRCS += src/workout_plugin.cc
 
 # User defines
 USER_DEFS =

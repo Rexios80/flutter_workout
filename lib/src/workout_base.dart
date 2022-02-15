@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -54,7 +53,7 @@ class Workout {
           _currentFeatures.contains(WorkoutFeature.steps) ||
           _currentFeatures.contains(WorkoutFeature.distance) ||
           _currentFeatures.contains(WorkoutFeature.speed)) {
-        sensors.add('pedometer'); // Why? Ask Tizen.
+        sensors.add('pedometer');
       }
     }
     return sensors;

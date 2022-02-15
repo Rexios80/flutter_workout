@@ -6,7 +6,7 @@
 #ifdef LOG_TAG
 #undef LOG_TAG
 #endif
-#define LOG_TAG "HealthTizenPlugin"
+#define LOG_TAG "WorkoutPlugin"
 
 #define LOG(prio, fmt, arg...)                                                 \
   dlog_print(prio, LOG_TAG, "%s: %s(%d) > " fmt, __FILE__, __func__, __LINE__, \

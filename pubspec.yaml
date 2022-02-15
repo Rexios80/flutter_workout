@@ -13,7 +13,6 @@ dependencies:
 
   permission_handler: ^8.1.2
   permission_handler_tizen: ^1.0.0
-  device_info_plus: ^3.2.1
 
 dev_dependencies:
   rexios_lints: ^1.0.0
@@ -25,5 +24,5 @@ flutter:
         package: dev.rexios.workout
         pluginClass: WorkoutPlugin
       tizen:
-        pluginClass: HealthTizenPlugin
-        fileName: health_tizen_plugin.h
+        pluginClass: WorkoutPlugin
+        fileName: workout_plugin.h
