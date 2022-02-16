@@ -52,7 +52,7 @@ class Workout {
     bool enableGps = false,
   }) {
     _currentFeatures = features;
-    final List<String> sensors;
+
     if (Platform.isAndroid) {
       return _initWearOS(exerciseType: exerciseType, enableGps: enableGps);
     } else {

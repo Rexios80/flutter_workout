@@ -3,7 +3,7 @@ import 'package:workout/src/model/workout_feature.dart';
 /// The result of starting a workout session
 class WorkoutStartResult {
   /// Wear OS: Requested features unsupported by the given exercise type
-  /// 
+  ///
   /// Tizen: Always empty
   final List<WorkoutFeature> unsupportedFeatures;
 
