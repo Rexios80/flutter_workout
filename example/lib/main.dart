@@ -14,6 +14,13 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final workout = Workout();
+  final features = [
+    WorkoutFeature.heartRate,
+    WorkoutFeature.calories,
+    WorkoutFeature.steps,
+    WorkoutFeature.distance,
+    WorkoutFeature.speed,
+  ];
 
   double heartRate = 0;
   double calories = 0;
@@ -25,7 +32,7 @@ class _MyAppState extends State<MyApp> {
   _MyAppState() {
     workout.stream.listen((event) {
       // ignore: avoid_print
-      print('${event.feature}: ${event.value}');
+      print('${event.feature}: ${event.value} (${event.timestamp})');
       switch (event.feature) {
         case WorkoutFeature.unknown:
           return;
@@ -96,8 +103,8 @@ class _MyAppState extends State<MyApp> {
 
       final result = await workout.start(
         // In a real application, check the supported exercise types first
-        exerciseType: ExerciseType.workout,
-        features: WorkoutFeature.values,
+        exerciseType: ExerciseType.running,
+        features: features,
       );
 
       if (result.unsupportedFeatures.isNotEmpty) {

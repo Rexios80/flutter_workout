@@ -34,19 +34,6 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
         exerciseClient =
             HealthServices.getClient(flutterPluginBinding.applicationContext).exerciseClient
-
-        val listener = object : ExerciseUpdateListener {
-            override fun onExerciseUpdate(update: ExerciseUpdate) {
-                this@WorkoutPlugin.onExerciseUpdate(update)
-            }
-
-            override fun onLapSummary(lapSummary: ExerciseLapSummary) {}
-            override fun onAvailabilityChanged(dataType: DataType, availability: Availability) {}
-        }
-
-        lifecycleScope.launch {
-            exerciseClient.setUpdateListener(listener).await()
-        }
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -69,6 +56,19 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         val lifecycle: Lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding)
         lifecycleScope = lifecycle.coroutineScope
+
+        val listener = object : ExerciseUpdateListener {
+            override fun onExerciseUpdate(update: ExerciseUpdate) {
+                this@WorkoutPlugin.onExerciseUpdate(update)
+            }
+
+            override fun onLapSummary(lapSummary: ExerciseLapSummary) {}
+            override fun onAvailabilityChanged(dataType: DataType, availability: Availability) {}
+        }
+
+        lifecycleScope.launch {
+            exerciseClient.setUpdateListener(listener).await()
+        }
     }
 
     override fun onDetachedFromActivityForConfigChanges() {}
@@ -114,7 +114,6 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         lifecycleScope.launch {
             val capabilities = exerciseClient.capabilities.await()
             if (exerciseType !in capabilities.supportedExerciseTypes) {
-                // TODO: Handle this better
                 result.error("ExerciseType $exerciseType not supported", null, null)
                 return@launch
             }
@@ -182,7 +181,8 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 listOf(
                     dataTypeToString(type),
                     dataPoint.total.asDouble(),
-                    bootInstant.plusMillis(dataPoint.endTime.toEpochMilli()).toEpochMilli()
+                    // I feel like this should have getEndInstant on it like above, but whatever
+                    dataPoint.endTime.toEpochMilli()
                 )
             )
         }
