@@ -1,7 +1,7 @@
 /// A sensor reading collected from the watch
 class WorkoutReading {
   /// The timestamp of the [WorkoutReading]
-  final timestamp = DateTime.now();
+  final DateTime timestamp;
 
   /// The type of data collected.
   final WorkoutFeature feature;
@@ -10,7 +10,8 @@ class WorkoutReading {
   final double value;
 
   /// Constructor
-  WorkoutReading(this.feature, this.value);
+  WorkoutReading(this.feature, this.value, DateTime? timestamp)
+      : timestamp = timestamp ?? DateTime.now();
 }
 
 /// The features a workout reading can have

@@ -2,13 +2,4 @@
     <queries>
         <package android:name="com.google.android.wearable.healthservices" />
     </queries>
-
-    <application>
-        <receiver android:name=".WorkoutPlugin" android:exported="true">
-            <intent-filter>
-                <action android:name="hs.passivemonitoring.HEALTH_EVENT" />
-            </intent-filter>
-        </receiver>
-    </application>
-
 </manifest>

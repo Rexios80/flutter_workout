@@ -1,22 +1,17 @@
 package dev.rexios.workout
 
-import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
 import androidx.annotation.NonNull
+import androidx.concurrent.futures.await
+import androidx.health.services.client.ExerciseClient
+import androidx.health.services.client.ExerciseUpdateListener
 import androidx.health.services.client.HealthServices
-import androidx.health.services.client.HealthServicesClient
 import androidx.health.services.client.MeasureCallback
-import androidx.health.services.client.data.Availability
-import androidx.health.services.client.data.DataPoint
-import androidx.health.services.client.data.DataType
-import androidx.health.services.client.data.PassiveMonitoringUpdate
-import androidx.lifecycle.coroutineScope
+import androidx.health.services.client.data.*
+import androidx.health.services.client.proto.DataProto
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference
+import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -25,29 +20,51 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /** WorkoutPlugin */
-class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, BroadcastReceiver() {
+class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
-    private lateinit var activity: Activity
     private lateinit var lifecycleScope: CoroutineScope
 
-    private val dataTypes = mutableListOf<DataType>()
-    private lateinit var healthClient: HealthServicesClient
-
-    // Since the system gives these to us in delta values we have to keep track of the total
-    private var calories = 0.0
-    private var steps = 0.0
-    private var distance = 0.0
+    private lateinit var exerciseClient: ExerciseClient
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "workout")
         channel.setMethodCallHandler(this)
+
+        exerciseClient =
+            HealthServices.getClient(flutterPluginBinding.applicationContext).exerciseClient
+
+        val listener = object : ExerciseUpdateListener {
+            override fun onExerciseUpdate(update: ExerciseUpdate) {
+                update.latestMetrics.forEach { key, values ->
+                    values.forEach {
+                        channel.invokeMethod("")
+                    }
+                }
+                // Process the latest information about the exercise.
+                exerciseStatus = update.state // e.g. ACTIVE, USER_PAUSED, etc.
+                activeDuration = update.activeDuration // Duration
+                latestMetrics = update.latestMetrics // Map<DataType, List<DataPoint>>
+                latestAggregateMetrics =
+                    update.latestAggregateMetrics // Map<DataType, AggregateDataPoint>
+                latestGoals = update.latestAchievedGoals // Set<AchievedExerciseGoal>
+                latestMilestones =
+                    update.latestMilestoneMarkerSummaries // Set<MilestoneMarkerSummary>
+
+            }
+
+            override fun onLapSummary(lapSummary: ExerciseLapSummary) {}
+            override fun onAvailabilityChanged(dataType: DataType, availability: Availability) {}
+        }
+
+        lifecycleScope.launch {
+            exerciseClient.setUpdateListener(listener).await()
+        }
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
             "start" -> {
-                start(call.arguments as List<String>)
-                result.success(null)
+                start(call.arguments as Map<String, Any>, result)
             }
             "stop" -> {
                 stop()
@@ -59,17 +76,38 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Broadcast
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        stop()
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        activity = binding.activity
-        lifecycleScope = (binding.lifecycle as HiddenLifecycleReference).lifecycle.coroutineScope
-        healthClient = HealthServices.getClient(activity)
+        lifecycleScope = FlutterLifecycleAdapter.getActivityLifecycle(binding).coroutineScope
     }
 
     override fun onDetachedFromActivityForConfigChanges() {}
     override fun onReattachedToActivityForConfigChanges(p0: ActivityPluginBinding) {}
     override fun onDetachedFromActivity() {}
+
+    private fun dataTypeToString(type: DataType): String {
+        return when (type) {
+            DataType.HEART_RATE_BPM -> "heartRate"
+            DataType.TOTAL_CALORIES -> "calories"
+            DataType.STEPS -> "steps"
+            DataType.DISTANCE -> "distance"
+            DataType.SPEED -> "speed"
+            else -> "unknown"
+        }
+    }
+
+    private fun dataTypeFromString(string: String): DataType {
+        return when (string) {
+            "heartRate" -> DataType.HEART_RATE_BPM
+            "calories" -> DataType.TOTAL_CALORIES
+            "steps" -> DataType.STEPS
+            "distance" -> DataType.DISTANCE
+            "speed" -> DataType.SPEED
+            else -> throw IllegalArgumentException()
+        }
+    }
 
     private val dataCallback = object : MeasureCallback {
         override fun onAvailabilityChanged(dataType: DataType, availability: Availability) {
@@ -113,75 +151,30 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, Broadcast
         }
     }
 
-    private fun start(arguments: List<String>) {
-        dataTypes.clear()
+    // This should probably me more developer configurable, but Tizen doesn't support any of these checks right now
+    private fun start(arguments: Map<String, Any>, result: Result) {
+        val exerciseTypeId = arguments["exercise"] as Int
+        val exerciseType = ExerciseType.fromId(exerciseTypeId)
 
-        if (arguments.contains("heartRate")) {
-            dataTypes.add(DataType.HEART_RATE_BPM)
-        }
-        if (arguments.contains("calories")) {
-            dataTypes.add(DataType.TOTAL_CALORIES)
-        }
-        if (arguments.contains("steps")) {
-            dataTypes.add(DataType.STEPS)
-        }
-        if (arguments.contains("distance")) {
-            dataTypes.add(DataType.DISTANCE)
-        }
-        if (arguments.contains("speed")) {
-            dataTypes.add(DataType.SPEED)
-        }
+        val typeStrings = arguments["sensors"] as List<String>
+        val types = typeStrings.map { dataTypeFromString(it) }
 
-        // Register the callback.
         lifecycleScope.launch {
-            dataTypes.forEach {
-                healthClient.measureClient.registerCallback(it, dataCallback)
+            val capabilities = exerciseClient.capabilities.await()
+            if (exerciseType !in capabilities.supportedExerciseTypes) {
+                result.error("ExerciseType not supported", null, null)
+                return@launch
             }
+            val exerciseCapabilities = capabilities.getExerciseTypeCapabilities(exerciseType)
+            val supportedDataTypes = exerciseCapabilities.supportedDataTypes
+
+            result.success(null)
         }
     }
 
     private fun stop() {
-        calories = 0.0
-        steps = 0.0
-        distance = 0.0
-
-        // Unregister the callback.
         lifecycleScope.launch {
-            dataTypes.forEach {
-                healthClient.measureClient.unregisterCallback(it, dataCallback)
-            }
+            exerciseClient.endExercise()
         }
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        // val state = PassiveMonitoringUpdate.fromIntent(intent) ?: return
-        // // Get the most recent heart rate measurement.
-        // val latestDataPoint = state.dataPoints
-        //     // dataPoints can have multiple types (e.g. if the app registered for multiple types).
-        //     .filter { it.dataType == DataType.HEART_RATE_BPM }
-        //     // where accuracy information is available, only show readings that are of medium or
-        //     // high accuracy. (Where accuracy information isn't available, show the reading if it is
-        //     // a positive value).
-        //     .filter {
-        //         it.accuracy == null ||
-        //                 setOf(
-        //                     HrAccuracy.SensorStatus.ACCURACY_MEDIUM,
-        //                     HrAccuracy.SensorStatus.ACCURACY_HIGH
-        //                 ).contains((it.accuracy as HrAccuracy).sensorStatus)
-        //     }
-        //     .filter {
-        //         it.value.asDouble() > 0
-        //     }
-        //     // HEART_RATE_BPM is a SAMPLE type, so start and end times are the same.
-        //     .maxByOrNull { it.endDurationFromBoot }
-        // // If there were no data points, the previous function returns null.
-        //     ?: return
-
-        // val latestHeartRate = latestDataPoint.value.asDouble() // HEART_RATE_BPM is a Float type.
-        // Log.d(TAG, "Received latest heart rate in background: $latestHeartRate")
-
-        // runBlocking {
-        //     repository.storeLatestHeartRate(latestHeartRate)
-        // }
     }
 }
