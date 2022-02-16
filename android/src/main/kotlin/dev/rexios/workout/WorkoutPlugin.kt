@@ -7,7 +7,8 @@ import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.ExerciseUpdateListener
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.data.*
-import io.flutter.Log
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.coroutineScope
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -22,8 +23,6 @@ import java.time.Instant
 
 /** WorkoutPlugin */
 class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
-    private val tag = "Workout"
-
     private lateinit var channel: MethodChannel
     private lateinit var lifecycleScope: CoroutineScope
 
@@ -52,9 +51,8 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
-            "start" -> {
-                start(call.arguments as Map<String, Any>, result)
-            }
+            "getSupportedExerciseTypes" -> getSupportedExerciseTypes(result)
+            "start" -> start(call.arguments as Map<String, Any>, result)
             "stop" -> {
                 stop()
                 result.success(null)
@@ -69,7 +67,8 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        lifecycleScope = FlutterLifecycleAdapter.getActivityLifecycle(binding).coroutineScope
+        val lifecycle: Lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding)
+        lifecycleScope = lifecycle.coroutineScope
     }
 
     override fun onDetachedFromActivityForConfigChanges() {}
@@ -98,9 +97,15 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
-    // This should probably me more developer configurable, but Tizen doesn't support any of these checks right now
+    private fun getSupportedExerciseTypes(result: Result) {
+        lifecycleScope.launch {
+            val capabilities = exerciseClient.capabilities.await()
+            result.success(capabilities.supportedExerciseTypes.map { it.id })
+        }
+    }
+
     private fun start(arguments: Map<String, Any>, result: Result) {
-        val exerciseTypeId = arguments["exercise"] as Int
+        val exerciseTypeId = arguments["exerciseType"] as Int
         val exerciseType = ExerciseType.fromId(exerciseTypeId)
 
         val typeStrings = arguments["sensors"] as List<String>
@@ -109,6 +114,7 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         lifecycleScope.launch {
             val capabilities = exerciseClient.capabilities.await()
             if (exerciseType !in capabilities.supportedExerciseTypes) {
+                // TODO: Handle this better
                 result.error("ExerciseType $exerciseType not supported", null, null)
                 return@launch
             }
@@ -116,13 +122,6 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             val supportedDataTypes = exerciseCapabilities.supportedDataTypes
             val requestedUnsupportedDataTypes = requestedDataTypes.minus(supportedDataTypes)
             val requestedSupportedDataTypes = requestedDataTypes.intersect(supportedDataTypes)
-
-            if (requestedUnsupportedDataTypes.isNotEmpty()) {
-                Log.d(
-                    tag,
-                    "DataTypes were requested that are unsupported by ExerciseType $exerciseType: $requestedUnsupportedDataTypes"
-                )
-            }
 
             // Types for which we want to receive metrics.
             val dataTypes = requestedSupportedDataTypes.intersect(
@@ -149,7 +148,14 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 .startExercise(config)
                 .await()
 
-            result.success(null)
+            // Return the unsupported data types so the developer can handle them
+            result.success(mapOf(
+                "unsupportedFeatures" to requestedUnsupportedDataTypes.map {
+                    dataTypeToString(
+                        it
+                    )
+                }
+            ))
         }
     }
 

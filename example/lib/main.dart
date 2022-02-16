@@ -14,13 +14,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final workout = Workout();
-  final features = [
-    WorkoutFeature.heartRate,
-    WorkoutFeature.calories,
-    WorkoutFeature.steps,
-    WorkoutFeature.distance,
-    WorkoutFeature.speed,
-  ];
 
   double heartRate = 0;
   double calories = 0;
@@ -81,14 +74,7 @@ class _MyAppState extends State<MyApp> {
               Text('Speed: $speed'),
               const Spacer(),
               TextButton(
-                onPressed: () => setState(() {
-                  started = !started;
-                  if (started) {
-                    workout.start(features);
-                  } else {
-                    workout.stop();
-                  }
-                }),
+                onPressed: toggleExerciseState,
                 child: Text(started ? 'Stop' : 'Start'),
               ),
             ],
@@ -96,5 +82,34 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  void toggleExerciseState() async {
+    setState(() {
+      started = !started;
+    });
+
+    if (started) {
+      final supportedExerciseTypes = await workout.getSupportedExerciseTypes();
+      // ignore: avoid_print
+      print('Supported exercise types: ${supportedExerciseTypes.length}');
+
+      final result = await workout.start(
+        // In a real application, check the supported exercise types first
+        exerciseType: ExerciseType.workout,
+        features: WorkoutFeature.values,
+      );
+
+      if (result.unsupportedFeatures.isNotEmpty) {
+        // ignore: avoid_print
+        print('Unsupported features: ${result.unsupportedFeatures}');
+        // In a real application, update the UI to match
+      } else {
+        // ignore: avoid_print
+        print('All requested features supported');
+      }
+    } else {
+      await workout.stop();
+    }
   }
 }

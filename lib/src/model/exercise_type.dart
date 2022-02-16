@@ -1,3 +1,4 @@
+/// Exercise types for Wear OS
 enum ExerciseType {
   /// The current exercise type of the user is unknown or not set.
   unknown,

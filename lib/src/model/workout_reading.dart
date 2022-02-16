@@ -1,3 +1,5 @@
+import 'package:workout/src/model/workout_feature.dart';
+
 /// A sensor reading collected from the watch
 class WorkoutReading {
   /// The timestamp of the [WorkoutReading]
@@ -14,25 +16,4 @@ class WorkoutReading {
       : timestamp = timestamp != null
             ? DateTime.fromMillisecondsSinceEpoch(timestamp)
             : DateTime.now();
-}
-
-/// The features a workout reading can have
-enum WorkoutFeature {
-  /// An unknown workout feature
-  unknown,
-
-  /// Heart rate
-  heartRate,
-
-  /// Calories burned
-  calories,
-
-  /// Steps taken
-  steps,
-
-  /// Distance traveled in meters
-  distance,
-
-  /// Speed in km/h
-  speed,
 }

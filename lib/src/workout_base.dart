@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-
-import 'package:workout/workout.dart';
+import 'package:workout/src/model/exercise_type.dart';
+import 'package:workout/src/model/workout_feature.dart';
+import 'package:workout/src/model/workout_reading.dart';
+import 'package:workout/src/model/workout_start_result.dart';
 
 /// Base class for flutter_workout
 class Workout {
@@ -21,8 +23,29 @@ class Workout {
     _channel.setMethodCallHandler(_handleMessage);
   }
 
+  /// Wear OS: The supported [ExerciseType]s of the device
+  /// 
+  /// Tizen: Always empty
+  Future<List<ExerciseType>> getSupportedExerciseTypes() async {
+    // This will throw on Tizen because it is not implemented
+    try {
+      final result =
+          await _channel.invokeListMethod('getSupportedExerciseTypes');
+      if (result == null) return [];
+      // These are returned as indices
+      return result.map((e) => ExerciseType.values[e]).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
   /// Starts a workout session with the specified [features] enabled
-  Future<void> start(List<WorkoutFeature> features) async {
+  /// 
+  /// [exerciseType] has no effect on Tizen
+  Future<WorkoutStartResult> start({
+    required ExerciseType exerciseType,
+    required List<WorkoutFeature> features,
+  }) async {
     _currentFeatures = features;
     final List<String> sensors;
     if (Platform.isAndroid) {
@@ -31,7 +54,11 @@ class Workout {
       // This is Tizen
       sensors = await _initTizen();
     }
-    return _channel.invokeMethod<void>('start', {'sensors': sensors});
+    final result = await _channel.invokeMapMethod<String, dynamic>(
+      'start',
+      {'exerciseType': exerciseType.index, 'sensors': sensors},
+    );
+    return WorkoutStartResult.fromResult(result);
   }
 
   Future<List<String>> _initWearOS() async {
