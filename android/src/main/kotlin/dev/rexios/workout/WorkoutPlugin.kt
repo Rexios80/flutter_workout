@@ -183,7 +183,11 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             data.add(
                 listOf(
                     dataTypeToString(type),
-                    dataPoint.total.asDouble(),
+                    when {
+                        dataPoint.total.isDouble -> dataPoint.total.asDouble()
+                        dataPoint.total.isLong -> dataPoint.total.asLong()
+                        else -> throw IllegalArgumentException()
+                    },
                     // I feel like this should have getEndInstant on it like above, but whatever
                     dataPoint.endTime.toEpochMilli()
                 )

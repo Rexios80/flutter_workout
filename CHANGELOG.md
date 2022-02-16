@@ -1,3 +1,6 @@
+## 0.4.0
+- Support for new Health Services APIs
+
 ## 0.3.0
 - Updated Tizen code
 

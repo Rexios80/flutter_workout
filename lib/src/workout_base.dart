@@ -44,7 +44,8 @@ class Workout {
   /// [exerciseType] has no effect on Tizen
   ///
   /// [enableGps] allows location information to be used to estimate
-  /// distance/speed instead of steps. Requires location premission.
+  /// distance/speed instead of steps. Will request location permission.
+  /// Has no effect on Tizen.
   Future<WorkoutStartResult> start({
     required ExerciseType exerciseType,
     required List<WorkoutFeature> features,

@@ -103,7 +103,7 @@ class _MyAppState extends State<MyApp> {
 
       final result = await workout.start(
         // In a real application, check the supported exercise types first
-        exerciseType: ExerciseType.running,
+        exerciseType: ExerciseType.walking,
         features: features,
         enableGps: true,
       );

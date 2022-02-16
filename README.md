@@ -7,10 +7,19 @@ Run a workout session and get live health data from Wear OS and Tizen.
 ### Wear OS
 Health Services for Wear OS are currently in developer preview
 
-build.gradle:
+android/app/build.gradle:
+
 `minSdkVersion 30`
 
-[Add an ambient screen to your watch app](https://developer.android.com/training/wearables/health-services/active#maintain-presence)
+android/app/src/main/AndroidManifest.xml:
+```xml
+<!-- Required for heart rate -->
+<uses-permission android:name="android.permission.BODY_SENSORS" />
+<!-- Required for calories, steps, distance, speed -->
+<uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+<!-- Required to use location to estimate distance, speed -->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```
 
 ### Tizen
 
@@ -29,10 +38,10 @@ Make the following changes to `tizen/tizen-manifest.xml`:
 
 ## Supported data types
 
-| Feature     | Wear OS     | Tizen       |
-| ----------- | ----------- | ----------- |
-| Heart rate  | Yes         | Yes         |
-| Calories    | Yes         | Yes         |
-| Step count  | Untested    | Yes         |
-| Speed       | Untested    | Yes         |
-| Distance    | Untested    | Yes         |
+| Feature    | Wear OS                      | Tizen |
+| ---------- | ---------------------------- | ----- |
+| Heart rate | Yes                          | Yes   |
+| Calories   | Yes                          | Yes   |
+| Step count | Not working on Galaxy Watch4 | Yes   |
+| Speed      | Yes                          | Yes   |
+| Distance   | Yes                          | Yes   |
