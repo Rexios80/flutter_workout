@@ -10,8 +10,10 @@ class WorkoutReading {
   final double value;
 
   /// Constructor
-  WorkoutReading(this.feature, this.value, DateTime? timestamp)
-      : timestamp = timestamp ?? DateTime.now();
+  WorkoutReading(this.feature, this.value, int? timestamp)
+      : timestamp = timestamp != null
+            ? DateTime.fromMillisecondsSinceEpoch(timestamp)
+            : DateTime.now();
 }
 
 /// The features a workout reading can have

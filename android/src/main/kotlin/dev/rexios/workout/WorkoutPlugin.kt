@@ -1,13 +1,13 @@
 package dev.rexios.workout
 
+import android.os.SystemClock
 import androidx.annotation.NonNull
 import androidx.concurrent.futures.await
 import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.ExerciseUpdateListener
 import androidx.health.services.client.HealthServices
-import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.data.*
-import androidx.health.services.client.proto.DataProto
+import io.flutter.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -18,9 +18,12 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 /** WorkoutPlugin */
 class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+    private val tag = "Workout"
+
     private lateinit var channel: MethodChannel
     private lateinit var lifecycleScope: CoroutineScope
 
@@ -35,21 +38,7 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
         val listener = object : ExerciseUpdateListener {
             override fun onExerciseUpdate(update: ExerciseUpdate) {
-                update.latestMetrics.forEach { key, values ->
-                    values.forEach {
-                        channel.invokeMethod("")
-                    }
-                }
-                // Process the latest information about the exercise.
-                exerciseStatus = update.state // e.g. ACTIVE, USER_PAUSED, etc.
-                activeDuration = update.activeDuration // Duration
-                latestMetrics = update.latestMetrics // Map<DataType, List<DataPoint>>
-                latestAggregateMetrics =
-                    update.latestAggregateMetrics // Map<DataType, AggregateDataPoint>
-                latestGoals = update.latestAchievedGoals // Set<AchievedExerciseGoal>
-                latestMilestones =
-                    update.latestMilestoneMarkerSummaries // Set<MilestoneMarkerSummary>
-
+                this@WorkoutPlugin.onExerciseUpdate(update)
             }
 
             override fun onLapSummary(lapSummary: ExerciseLapSummary) {}
@@ -109,66 +98,91 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
-    private val dataCallback = object : MeasureCallback {
-        override fun onAvailabilityChanged(dataType: DataType, availability: Availability) {
-            // Handle availability change.
-        }
-
-        override fun onData(data: List<DataPoint>) {
-            val dataPoint = data.first()
-
-            when (dataPoint.dataType) {
-                DataType.HEART_RATE_BPM -> channel.invokeMethod(
-                    "dataReceived",
-                    listOf("heartRate", dataPoint.value.asDouble())
-                )
-                DataType.TOTAL_CALORIES -> {
-                    calories += dataPoint.value.asDouble()
-                    channel.invokeMethod(
-                        "dataReceived",
-                        listOf("calories", calories)
-                    )
-                }
-                DataType.STEPS -> {
-                    steps += dataPoint.value.asDouble()
-                    channel.invokeMethod(
-                        "dataReceived",
-                        listOf("steps", steps.toInt())
-                    )
-                }
-                DataType.DISTANCE -> {
-                    distance += dataPoint.value.asDouble()
-                    channel.invokeMethod(
-                        "dataReceived",
-                        listOf("distance", distance)
-                    )
-                }
-                DataType.SPEED -> channel.invokeMethod(
-                    "dataReceived",
-                    listOf("speed", dataPoint.value.asDouble())
-                )
-            }
-        }
-    }
-
     // This should probably me more developer configurable, but Tizen doesn't support any of these checks right now
     private fun start(arguments: Map<String, Any>, result: Result) {
         val exerciseTypeId = arguments["exercise"] as Int
         val exerciseType = ExerciseType.fromId(exerciseTypeId)
 
         val typeStrings = arguments["sensors"] as List<String>
-        val types = typeStrings.map { dataTypeFromString(it) }
+        val requestedDataTypes = typeStrings.map { dataTypeFromString(it) }
 
         lifecycleScope.launch {
             val capabilities = exerciseClient.capabilities.await()
             if (exerciseType !in capabilities.supportedExerciseTypes) {
-                result.error("ExerciseType not supported", null, null)
+                result.error("ExerciseType $exerciseType not supported", null, null)
                 return@launch
             }
             val exerciseCapabilities = capabilities.getExerciseTypeCapabilities(exerciseType)
             val supportedDataTypes = exerciseCapabilities.supportedDataTypes
+            val requestedUnsupportedDataTypes = requestedDataTypes.minus(supportedDataTypes)
+            val requestedSupportedDataTypes = requestedDataTypes.intersect(supportedDataTypes)
+
+            if (requestedUnsupportedDataTypes.isNotEmpty()) {
+                Log.d(
+                    tag,
+                    "DataTypes were requested that are unsupported by ExerciseType $exerciseType: $requestedUnsupportedDataTypes"
+                )
+            }
+
+            // Types for which we want to receive metrics.
+            val dataTypes = requestedSupportedDataTypes.intersect(
+                setOf(DataType.HEART_RATE_BPM, DataType.SPEED)
+            )
+
+            // Types for which we want to receive aggregate metrics.
+            val aggregateDataTypes = requestedSupportedDataTypes.intersect(
+                setOf(
+                    // "Total" here refers not to the aggregation but to basal + activity.
+                    DataType.TOTAL_CALORIES,
+                    DataType.STEPS,
+                    DataType.DISTANCE
+                )
+            )
+
+            val config = ExerciseConfig.builder()
+                .setExerciseType(exerciseType)
+                .setDataTypes(dataTypes)
+                .setAggregateDataTypes(aggregateDataTypes)
+                .build()
+
+            exerciseClient
+                .startExercise(config)
+                .await()
 
             result.success(null)
+        }
+    }
+
+    private fun onExerciseUpdate(update: ExerciseUpdate) {
+        val data = mutableListOf<List<Any>>()
+        val bootInstant =
+            Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime())
+
+        update.latestMetrics.forEach { (type, values) ->
+            values.forEach { dataPoint ->
+                data.add(
+                    listOf(
+                        dataTypeToString(type),
+                        dataPoint.value.asDouble(),
+                        dataPoint.getEndInstant(bootInstant).toEpochMilli()
+                    )
+                )
+            }
+        }
+
+        update.latestAggregateMetrics.forEach { (type, value) ->
+            val dataPoint = (value as CumulativeDataPoint)
+            data.add(
+                listOf(
+                    dataTypeToString(type),
+                    dataPoint.total.asDouble(),
+                    bootInstant.plusMillis(dataPoint.endTime.toEpochMilli()).toEpochMilli()
+                )
+            )
+        }
+
+        data.forEach {
+            channel.invokeMethod("dataReceived", it)
         }
     }
 

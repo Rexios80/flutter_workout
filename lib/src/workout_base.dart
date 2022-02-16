@@ -70,6 +70,14 @@ class Workout {
       final featureString = arguments[0] as String;
       final value = arguments[1] as double;
 
+      // I can't get maps to work in C++ and there aren't any errors, so this is what we got
+      late final int? timestamp;
+      try {
+        timestamp = arguments[2] as int;
+      } catch (_) {
+        timestamp = null;
+      }
+
       if (!_currentFeatures.map((e) => e.name).contains(featureString)) {
         // Don't send features the developer didn't ask for (ahem... Tizen)
         return Future.value();
@@ -77,7 +85,7 @@ class Workout {
 
       final feature = WorkoutFeature.values.byName(featureString);
 
-      _streamController.add(WorkoutReading(feature, value));
+      _streamController.add(WorkoutReading(feature, value, timestamp));
       return Future.value();
     } catch (e) {
       return Future.error(e);

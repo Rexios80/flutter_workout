@@ -69,28 +69,30 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
-      home: Center(
-        child: Column(
-          children: [
-            const Spacer(),
-            Text('Heart rate: $heartRate'),
-            Text('Calories: $calories'),
-            Text('Steps: $steps'),
-            Text('Distance: $distance'),
-            Text('Speed: $speed'),
-            const Spacer(),
-            TextButton(
-              onPressed: () => setState(() {
-                started = !started;
-                if (started) {
-                  workout.start(features);
-                } else {
-                  workout.stop();
-                }
-              }),
-              child: Text(started ? 'Stop' : 'Start'),
-            ),
-          ],
+      home: Scaffold(
+        body: Center(
+          child: Column(
+            children: [
+              const Spacer(),
+              Text('Heart rate: $heartRate'),
+              Text('Calories: $calories'),
+              Text('Steps: $steps'),
+              Text('Distance: $distance'),
+              Text('Speed: $speed'),
+              const Spacer(),
+              TextButton(
+                onPressed: () => setState(() {
+                  started = !started;
+                  if (started) {
+                    workout.start(features);
+                  } else {
+                    workout.stop();
+                  }
+                }),
+                child: Text(started ? 'Stop' : 'Start'),
+              ),
+            ],
+          ),
         ),
       ),
     );
