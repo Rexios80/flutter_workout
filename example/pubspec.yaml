@@ -15,12 +15,6 @@ dependencies:
     # The example app is bundled with the plugin so we use a path dependency on
     # the parent directory to use the current plugin's version.
     path: ../
-  
-  # If only the pub.dev version of this plugin was ever ready to use
-  wear:
-    git:
-      url: https://github.com/sdstolworthy/flutter_wear_plugin
-      ref: 39074a52a672098c89dd731f533a4cb68ed8cfdd
 
 dev_dependencies:
   rexios_lints: ^1.0.0

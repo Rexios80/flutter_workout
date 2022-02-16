@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wear/wear.dart';
 import 'package:workout/workout.dart';
 
 void main() {
@@ -70,34 +69,28 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
-      home: AmbientMode(
-        builder: (context, mode, child) => Scaffold(
-          backgroundColor: mode == WearMode.ambient ? Colors.black : null,
-          body: Center(
-            child: Column(
-              children: [
-                const Spacer(),
-                Text('Heart rate: $heartRate'),
-                Text('Calories: $calories'),
-                Text('Steps: $steps'),
-                Text('Distance: $distance'),
-                Text('Speed: $speed'),
-                const Spacer(),
-                if (mode == WearMode.active)
-                  TextButton(
-                    onPressed: () => setState(() {
-                      started = !started;
-                      if (started) {
-                        workout.start(features);
-                      } else {
-                        workout.stop();
-                      }
-                    }),
-                    child: Text(started ? 'Stop' : 'Start'),
-                  ),
-              ],
+      home: Center(
+        child: Column(
+          children: [
+            const Spacer(),
+            Text('Heart rate: $heartRate'),
+            Text('Calories: $calories'),
+            Text('Steps: $steps'),
+            Text('Distance: $distance'),
+            Text('Speed: $speed'),
+            const Spacer(),
+            TextButton(
+              onPressed: () => setState(() {
+                started = !started;
+                if (started) {
+                  workout.start(features);
+                } else {
+                  workout.stop();
+                }
+              }),
+              child: Text(started ? 'Stop' : 'Start'),
             ),
-          ),
+          ],
         ),
       ),
     );
