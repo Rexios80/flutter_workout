@@ -105,6 +105,7 @@ class _MyAppState extends State<MyApp> {
         // In a real application, check the supported exercise types first
         exerciseType: ExerciseType.running,
         features: features,
+        enableGps: true,
       );
 
       if (result.unsupportedFeatures.isNotEmpty) {

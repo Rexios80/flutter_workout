@@ -111,6 +111,8 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val typeStrings = arguments["sensors"] as List<String>
         val requestedDataTypes = typeStrings.map { dataTypeFromString(it) }
 
+        val enableGps = arguments["enableGps"] as Boolean
+
         lifecycleScope.launch {
             val capabilities = exerciseClient.capabilities.await()
             if (exerciseType !in capabilities.supportedExerciseTypes) {
@@ -141,6 +143,7 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 .setExerciseType(exerciseType)
                 .setDataTypes(dataTypes)
                 .setAggregateDataTypes(aggregateDataTypes)
+                .setShouldEnableGps(enableGps)
                 .build()
 
             exerciseClient

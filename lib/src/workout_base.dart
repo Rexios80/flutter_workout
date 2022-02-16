@@ -24,7 +24,7 @@ class Workout {
   }
 
   /// Wear OS: The supported [ExerciseType]s of the device
-  /// 
+  ///
   /// Tizen: Always empty
   Future<List<ExerciseType>> getSupportedExerciseTypes() async {
     // This will throw on Tizen because it is not implemented
@@ -40,11 +40,15 @@ class Workout {
   }
 
   /// Starts a workout session with the specified [features] enabled
-  /// 
+  ///
   /// [exerciseType] has no effect on Tizen
+  ///
+  /// [enableGps] allows location information to be used to estimate
+  /// distance/speed instead of steps. Requires location premission.
   Future<WorkoutStartResult> start({
     required ExerciseType exerciseType,
     required List<WorkoutFeature> features,
+    bool enableGps = false,
   }) async {
     _currentFeatures = features;
     final List<String> sensors;
@@ -56,7 +60,11 @@ class Workout {
     }
     final result = await _channel.invokeMapMethod<String, dynamic>(
       'start',
-      {'exerciseType': exerciseType.index, 'sensors': sensors},
+      {
+        'exerciseType': exerciseType.index,
+        'sensors': sensors,
+        'enableGps': enableGps,
+      },
     );
     return WorkoutStartResult.fromResult(result);
   }
