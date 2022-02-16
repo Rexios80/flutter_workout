@@ -14,6 +14,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final workout = Workout();
+
+  final exerciseType = ExerciseType.walking;
   final features = [
     WorkoutFeature.heartRate,
     WorkoutFeature.calories,
@@ -21,6 +23,7 @@ class _MyAppState extends State<MyApp> {
     WorkoutFeature.distance,
     WorkoutFeature.speed,
   ];
+  final enableGps = true;
 
   double heartRate = 0;
   double calories = 0;
@@ -103,9 +106,9 @@ class _MyAppState extends State<MyApp> {
 
       final result = await workout.start(
         // In a real application, check the supported exercise types first
-        exerciseType: ExerciseType.walking,
+        exerciseType: exerciseType,
         features: features,
-        enableGps: true,
+        enableGps: enableGps,
       );
 
       if (result.unsupportedFeatures.isNotEmpty) {

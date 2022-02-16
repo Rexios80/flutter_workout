@@ -50,35 +50,61 @@ class Workout {
     required ExerciseType exerciseType,
     required List<WorkoutFeature> features,
     bool enableGps = false,
-  }) async {
+  }) {
     _currentFeatures = features;
     final List<String> sensors;
     if (Platform.isAndroid) {
-      sensors = await _initWearOS();
+      return _initWearOS(exerciseType: exerciseType, enableGps: enableGps);
     } else {
       // This is Tizen
-      sensors = await _initTizen();
+      return _initTizen();
     }
-    final result = await _channel.invokeMapMethod<String, dynamic>(
-      'start',
-      {
-        'exerciseType': exerciseType.index,
-        'sensors': sensors,
-        'enableGps': enableGps,
-      },
+  }
+
+  Future<WorkoutStartResult> _initWearOS({
+    required ExerciseType exerciseType,
+    required bool enableGps,
+  }) async {
+    final sensors = <String>[];
+
+    if (_currentFeatures.contains(WorkoutFeature.heartRate)) {
+      final status = await Permission.sensors.request();
+      if (status.isGranted) {
+        sensors.add(WorkoutFeature.heartRate.name);
+      }
+    }
+
+    final activityRecognitionFeatures = {
+      WorkoutFeature.calories,
+      WorkoutFeature.steps,
+      WorkoutFeature.distance,
+      WorkoutFeature.speed,
+    };
+    final requestedActivityRecognitionFeatures =
+        _currentFeatures.toSet().intersection(activityRecognitionFeatures);
+
+    if (requestedActivityRecognitionFeatures.isNotEmpty) {
+      final status = await Permission.activityRecognition.request();
+      if (status.isGranted) {
+        sensors.addAll(requestedActivityRecognitionFeatures.map((e) => e.name));
+      }
+    }
+
+    if (enableGps) {
+      final status = await Permission.location.request();
+      if (!status.isGranted) {
+        enableGps = false;
+      }
+    }
+
+    return _start(
+      exerciseType: exerciseType,
+      sensors: sensors,
+      enableGps: enableGps,
     );
-    return WorkoutStartResult.fromResult(result);
   }
 
-  Future<List<String>> _initWearOS() async {
-    // TODO: Request necessary permissions based on what features are used
-    await Permission.sensors.request();
-    await Permission.activityRecognition.request();
-    await Permission.location.request();
-    return _currentFeatures.map((e) => e.name).toList();
-  }
-
-  Future<List<String>> _initTizen() async {
+  Future<WorkoutStartResult> _initTizen() async {
     final sensors = <String>[];
     final status = await Permission.sensors.request();
     if (status.isGranted) {
@@ -92,7 +118,23 @@ class Workout {
         sensors.add('pedometer');
       }
     }
-    return sensors;
+    return _start(exerciseType: null, sensors: sensors, enableGps: false);
+  }
+
+  Future<WorkoutStartResult> _start({
+    required ExerciseType? exerciseType,
+    required List<String> sensors,
+    required bool enableGps,
+  }) async {
+    final result = await _channel.invokeMapMethod<String, dynamic>(
+      'start',
+      {
+        'exerciseType': exerciseType?.index,
+        'sensors': sensors,
+        'enableGps': enableGps,
+      },
+    );
+    return WorkoutStartResult.fromResult(result);
   }
 
   /// Stops the workout session and sensor data collection
