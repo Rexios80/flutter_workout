@@ -1,3 +1,6 @@
+## 0.4.1
+- Fixed proguard issue
+
 ## 0.4.0
 - Support for new Health Services APIs
 
