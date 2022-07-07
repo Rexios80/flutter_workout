@@ -1,3 +1,7 @@
+## 0.5.0
+- BREAKING CHANGE: Updated Android compileSdkVersion to 33 for `permission_handler`
+- Updated dependencies
+
 ## 0.4.1
 - Fixed proguard issue
 
