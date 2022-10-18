@@ -1,3 +1,6 @@
+## 0.5.1
+- Fixes Android build issue
+
 ## 0.5.0
 - BREAKING CHANGE: Updated Android compileSdkVersion to 33 for `permission_handler`
 - Updated dependencies
