@@ -69,26 +69,21 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
     override fun onReattachedToActivityForConfigChanges(p0: ActivityPluginBinding) {}
     override fun onDetachedFromActivity() {}
 
+    private val dataTypeStringMap = mapOf(
+        DataType.HEART_RATE_BPM to "heartRate",
+        DataType.CALORIES_TOTAL to "calories",
+        DataType.STEPS_TOTAL to "steps",
+        DataType.DISTANCE_TOTAL to "distance",
+        DataType.SPEED to "speed",
+    )
+
     private fun dataTypeToString(type: DataType<*, *>): String {
-        return when (type) {
-            DataType.HEART_RATE_BPM -> "heartRate"
-            DataType.CALORIES_TOTAL -> "calories"
-            DataType.STEPS_TOTAL -> "steps"
-            DataType.DISTANCE_TOTAL -> "distance"
-            DataType.SPEED -> "speed"
-            else -> "unknown"
-        }
+        return dataTypeStringMap[type] ?: "unknown"
     }
 
     private fun dataTypeFromString(string: String): DataType<*, *> {
-        return when (string) {
-            "heartRate" -> DataType.HEART_RATE_BPM
-            "calories" -> DataType.CALORIES_TOTAL
-            "steps" -> DataType.STEPS_TOTAL
-            "distance" -> DataType.DISTANCE_TOTAL
-            "speed" -> DataType.SPEED
-            else -> throw IllegalArgumentException()
-        }
+        return dataTypeStringMap.entries.firstOrNull { it.value == string }?.key
+            ?: throw IllegalArgumentException("Unknown data type: $string")
     }
 
     private fun getSupportedExerciseTypes(result: Result) {
