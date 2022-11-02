@@ -48,7 +48,6 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
                 stop()
                 result.success(null)
             }
-
             else -> result.notImplemented()
         }
     }
@@ -161,9 +160,7 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
 
     override fun onLapSummaryReceived(lapSummary: ExerciseLapSummary) {}
     override fun onRegistered() {}
-
     override fun onRegistrationFailed(throwable: Throwable) {}
-
     override fun onAvailabilityChanged(dataType: DataType<*, *>, availability: Availability) {}
 
     private fun stop() {
