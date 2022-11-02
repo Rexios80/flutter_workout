@@ -5,7 +5,12 @@ import androidx.concurrent.futures.await
 import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.ExerciseUpdateCallback
 import androidx.health.services.client.HealthServices
-import androidx.health.services.client.data.*
+import androidx.health.services.client.data.Availability
+import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.ExerciseConfig
+import androidx.health.services.client.data.ExerciseLapSummary
+import androidx.health.services.client.data.ExerciseType
+import androidx.health.services.client.data.ExerciseUpdate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -126,21 +131,18 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
                 )
             )
 
-            val config =
-                ExerciseConfig(
-                    exerciseType = exerciseType,
-                    dataTypes = dataTypes,
-                    isAutoPauseAndResumeEnabled = false,
-                    isGpsEnabled = enableGps,
-                )
+            val config = ExerciseConfig(
+                exerciseType = exerciseType,
+                dataTypes = dataTypes,
+                isAutoPauseAndResumeEnabled = false,
+                isGpsEnabled = enableGps,
+            )
 
             exerciseClient.startExerciseAsync(config).await()
 
             // Return the unsupported data types so the developer can handle them
             result.success(mapOf("unsupportedFeatures" to requestedUnsupportedDataTypes.map {
-                dataTypeToString(
-                    it
-                )
+                dataTypeToString(it)
             }))
         }
     }
@@ -150,30 +152,23 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
         val bootInstant =
             Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime())
 
-        update.latestMetrics.forEach { (type, values) ->
-            values.forEach { dataPoint ->
-                data.add(
-                    listOf(
-                        dataTypeToString(type),
-                        dataPoint.value.asDouble(),
-                        dataPoint.getEndInstant(bootInstant).toEpochMilli()
-                    )
-                )
-            }
-        }
-
-        update.latestAggregateMetrics.forEach { (type, value) ->
-            val dataPoint = (value as CumulativeDataPoint)
+        update.latestMetrics.sampleDataPoints.forEach { dataPoint ->
             data.add(
                 listOf(
-                    dataTypeToString(type),
-                    when {
-                        dataPoint.total.isDouble -> dataPoint.total.asDouble()
-                        dataPoint.total.isLong -> dataPoint.total.asLong()
-                        else -> throw IllegalArgumentException()
-                    },
+                    dataTypeToString(dataPoint.dataType),
+                    (dataPoint.value as Number).toDouble(),
+                    dataPoint.getTimeInstant(bootInstant).toEpochMilli()
+                )
+            )
+
+        }
+
+        update.latestMetrics.cumulativeDataPoints.forEach { dataPoint ->
+            data.add(
+                listOf(
+                    dataTypeToString(dataPoint.dataType), dataPoint.total.toDouble(),
                     // I feel like this should have getEndInstant on it like above, but whatever
-                    dataPoint.endTime.toEpochMilli()
+                    dataPoint.end.toEpochMilli()
                 )
             )
         }
@@ -191,8 +186,6 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
     override fun onAvailabilityChanged(dataType: DataType<*, *>, availability: Availability) {}
 
     private fun stop() {
-        lifecycleScope.launch {
-            exerciseClient.endExercise()
-        }
+        exerciseClient.endExerciseAsync()
     }
 }
