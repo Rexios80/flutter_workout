@@ -74,7 +74,7 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
             DataType.HEART_RATE_BPM -> "heartRate"
             DataType.CALORIES_TOTAL -> "calories"
             DataType.STEPS_TOTAL -> "steps"
-            DataType.DISTANCE -> "distance"
+            DataType.DISTANCE_TOTAL -> "distance"
             DataType.SPEED -> "speed"
             else -> "unknown"
         }
@@ -118,22 +118,9 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
             val requestedUnsupportedDataTypes = requestedDataTypes.minus(supportedDataTypes)
             val requestedSupportedDataTypes = requestedDataTypes.intersect(supportedDataTypes)
 
-            // Types for which we want to receive metrics.
-            val dataTypes = requestedSupportedDataTypes.intersect(
-                setOf(DataType.HEART_RATE_BPM, DataType.SPEED)
-            )
-
-            // Types for which we want to receive aggregate metrics.
-            val aggregateDataTypes = requestedSupportedDataTypes.intersect(
-                setOf(
-                    // "Total" here refers not to the aggregation but to basal + activity.
-                    DataType.CALORIES_TOTAL, DataType.STEPS, DataType.DISTANCE
-                )
-            )
-
             val config = ExerciseConfig(
                 exerciseType = exerciseType,
-                dataTypes = dataTypes,
+                dataTypes = requestedSupportedDataTypes,
                 isAutoPauseAndResumeEnabled = false,
                 isGpsEnabled = enableGps,
             )
@@ -160,7 +147,6 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
                     dataPoint.getTimeInstant(bootInstant).toEpochMilli()
                 )
             )
-
         }
 
         update.latestMetrics.cumulativeDataPoints.forEach { dataPoint ->
