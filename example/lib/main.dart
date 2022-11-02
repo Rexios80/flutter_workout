@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wear/wear.dart';
 import 'package:workout/workout.dart';
 
 void main() {
@@ -70,24 +71,29 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
-      home: Scaffold(
-        body: Center(
-          child: Column(
-            children: [
-              const Spacer(),
-              Text('Heart rate: $heartRate'),
-              Text('Calories: $calories'),
-              Text('Steps: $steps'),
-              Text('Distance: $distance'),
-              Text('Speed: $speed'),
-              const Spacer(),
-              TextButton(
-                onPressed: toggleExerciseState,
-                child: Text(started ? 'Stop' : 'Start'),
-              ),
-            ],
+    // Use ambient mode to stay alive in the foreground
+    // Use a foreground service if you want to stay alive in the background
+    return AmbientMode(
+      builder: (context, mode, child) => child!,
+      child: MaterialApp(
+        theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
+        home: Scaffold(
+          body: Center(
+            child: Column(
+              children: [
+                const Spacer(),
+                Text('Heart rate: $heartRate'),
+                Text('Calories: ${calories.toStringAsFixed(2)}'),
+                Text('Steps: $steps'),
+                Text('Distance: ${distance.toStringAsFixed(2)}'),
+                Text('Speed: ${speed.toStringAsFixed(2)}'),
+                const Spacer(),
+                TextButton(
+                  onPressed: toggleExerciseState,
+                  child: Text(started ? 'Stop' : 'Start'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
