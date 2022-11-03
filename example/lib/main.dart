@@ -7,7 +7,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -71,13 +71,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Use ambient mode to stay alive in the foreground
-    // Use a foreground service if you want to stay alive in the background
-    return AmbientMode(
-      builder: (context, mode, child) => child!,
-      child: MaterialApp(
-        theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
-        home: Scaffold(
+    return MaterialApp(
+      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
+      // Use ambient mode to stay alive in the foreground
+      // Use a foreground service if you want to stay alive in the background
+      home: AmbientMode(
+        builder: (context, mode, child) => child!,
+        child: Scaffold(
           body: Center(
             child: Column(
               children: [

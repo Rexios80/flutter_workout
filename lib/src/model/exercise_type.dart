@@ -1,254 +1,293 @@
+import 'package:collection/collection.dart';
+
 /// Exercise types for Wear OS
 enum ExerciseType {
-  /// The current exercise type of the user is unknown or not set.
-  unknown,
+  /// unknown
+  unknown(0),
+
+  /// alpineSkiing
+  alpineSkiing(92),
+
+  /// backpacking
+  backpacking(84),
 
   /// backExtension
-  backExtension,
+  backExtension(1),
 
   /// badminton
-  badminton,
+  badminton(2),
 
   /// barbellShoulderPress
-  barbellShoulderPress,
+  barbellShoulderPress(3),
 
   /// baseball
-  baseball,
+  baseball(4),
 
   /// basketball
-  basketball,
+  basketball(5),
 
   /// benchPress
-  benchPress,
+  benchPress(6),
 
   /// benchSitUp
-  benchSitUp,
+  benchSitUp(7),
 
   /// biking
-  biking,
+  biking(8),
 
   /// bikingStationary
-  bikingStationary,
+  bikingStationary(9),
 
   /// bootCamp
-  bootCamp,
+  bootCamp(10),
 
   /// boxing
-  boxing,
+  boxing(11),
 
   /// burpee
-  burpee,
+  burpee(12),
 
-  /// (E.g., push ups, sit ups, pull-ups, jumping jacks).
-  calisthenics,
+  /// calisthenics
+  calisthenics(13),
 
   /// cricket
-  cricket,
+  cricket(14),
+
+  /// crossCountrySkiing
+  crossCountrySkiing(91),
 
   /// crunch
-  crunch,
+  crunch(15),
 
   /// dancing
-  dancing,
+  dancing(16),
 
   /// deadlift
-  deadlift,
+  deadlift(17),
 
-  /// dumbellCurlRightArm
-  dumbellCurlRightArm,
+  /// dumbbellCurlRightArm
+  dumbbellCurlRightArm(18),
 
-  /// dumbellCurlLeftArm
-  dumbellCurlLeftArm,
+  /// dumbbellCurlLeftArm
+  dumbbellCurlLeftArm(19),
 
-  /// dumbellFrontRaise
-  dumbellFrontRaise,
+  /// dumbbellFrontRaise
+  dumbbellFrontRaise(20),
 
-  /// dumbellLateralRaise
-  dumbellLateralRaise,
+  /// dumbbellLateralRaise
+  dumbbellLateralRaise(21),
 
-  /// dumbellTricepsExtensionLeftArm
-  dumbellTricepsExtensionLeftArm,
+  /// dumbbellTricepsExtensionLeftArm
+  dumbbellTricepsExtensionLeftArm(22),
 
-  /// dumbellTricepsExtensionRightArm
-  dumbellTricepsExtensionRightArm,
+  /// dumbbellTricepsExtensionRightArm
+  dumbbellTricepsExtensionRightArm(23),
 
-  /// dumbellTricepsExtensionTwoArm
-  dumbellTricepsExtensionTwoArm,
+  /// dumbbellTricepsExtensionTwoArm
+  dumbbellTricepsExtensionTwoArm(24),
 
   /// elliptical
-  elliptical,
+  elliptical(25),
 
   /// exerciseClass
-  exerciseClass,
+  exerciseClass(26),
 
   /// fencing
-  fencing,
+  fencing(27),
 
   /// frisbeeDisc
-  frisbeeDisc,
+  frisbeeDisc(28),
 
   /// footballAmerican
-  footballAmerican,
+  footballAmerican(29),
 
   /// footballAustralian
-  footballAustralian,
+  footballAustralian(30),
 
   /// forwardTwist
-  forwardTwist,
+  forwardTwist(31),
 
   /// golf
-  golf,
+  golf(32),
 
   /// guidedBreathing
-  guidedBreathing,
+  guidedBreathing(33),
+
+  /// horseRiding
+  horseRiding(88),
 
   /// gymnastics
-  gymnastics,
+  gymnastics(34),
 
   /// handball
-  handball,
+  handball(35),
 
   /// highIntensityIntervalTraining
-  highIntensityIntervalTraining,
+  highIntensityIntervalTraining(36),
 
   /// hiking
-  hiking,
+  hiking(37),
 
   /// iceHockey
-  iceHockey,
+  iceHockey(38),
 
   /// iceSkating
-  iceSkating,
+  iceSkating(39),
+
+  /// inlineSkating
+  inlineSkating(87),
 
   /// jumpRope
-  jumpRope,
+  jumpRope(40),
 
   /// jumpingJack
-  jumpingJack,
+  jumpingJack(41),
 
   /// latPullDown
-  latPullDown,
+  latPullDown(42),
 
   /// lunge
-  lunge,
+  lunge(43),
 
   /// martialArts
-  martialArts,
+  martialArts(44),
 
   /// meditation
-  meditation,
+  meditation(45),
+
+  /// mountainBiking
+  mountainBiking(85),
+
+  /// orienteering
+  orienteering(86),
 
   /// paddling
-  paddling,
+  paddling(46),
 
   /// paraGliding
-  paraGliding,
+  paraGliding(47),
 
   /// pilates
-  pilates,
+  pilates(48),
 
   /// plank
-  plank,
+  plank(49),
 
   /// racquetball
-  racquetball,
+  racquetball(50),
 
   /// rockClimbing
-  rockClimbing,
+  rockClimbing(51),
 
   /// rollerHockey
-  rollerHockey,
+  rollerHockey(52),
+
+  /// rollerSkating
+  rollerSkating(89),
 
   /// rowing
-  rowing,
+  rowing(53),
 
   /// rowingMachine
-  rowingMachine,
+  rowingMachine(54),
 
   /// running
-  running,
+  running(55),
 
   /// runningTreadmill
-  runningTreadmill,
+  runningTreadmill(56),
 
   /// rugby
-  rugby,
+  rugby(57),
 
   /// sailing
-  sailing,
+  sailing(58),
 
   /// scubaDiving
-  scubaDiving,
+  scubaDiving(59),
 
   /// skating
-  skating,
+  skating(60),
 
   /// skiing
-  skiing,
+  skiing(61),
 
   /// snowboarding
-  snowboarding,
+  snowboarding(62),
 
   /// snowshoeing
-  snowshoeing,
+  snowshoeing(63),
 
   /// soccer
-  soccer,
+  soccer(64),
 
   /// softball
-  softball,
+  softball(65),
 
   /// squash
-  squash,
+  squash(66),
 
   /// squat
-  squat,
+  squat(67),
 
   /// stairClimbing
-  stairClimbing,
+  stairClimbing(68),
 
   /// stairClimbingMachine
-  stairClimbingMachine,
+  stairClimbingMachine(69),
 
   /// strengthTraining
-  strengthTraining,
+  strengthTraining(70),
 
   /// stretching
-  stretching,
+  stretching(71),
 
   /// surfing
-  surfing,
+  surfing(72),
 
   /// swimmingOpenWater
-  swimmingOpenWater,
+  swimmingOpenWater(73),
 
   /// swimmingPool
-  swimmingPool,
+  swimmingPool(74),
 
   /// tableTennis
-  tableTennis,
+  tableTennis(75),
 
   /// tennis
-  tennis,
+  tennis(76),
 
   /// upperTwist
-  upperTwist,
+  upperTwist(77),
 
   /// volleyball
-  volleyball,
+  volleyball(78),
 
   /// walking
-  walking,
+  walking(79),
 
   /// waterPolo
-  waterPolo,
+  waterPolo(80),
 
-  /// weightLifting
-  weightLifting,
+  /// weightlifting
+  weightlifting(81),
 
   /// workout
-  workout,
+  workout(82),
+
+  /// yachting
+  yachting(90),
 
   /// yoga
-  yoga,
+  yoga(83);
+
+  /// The type id
+  final int id;
+
+  /// Constructor
+  const ExerciseType(this.id);
+
+  /// Returns the [ExerciseType] for the given [id]
+  static ExerciseType? fromId(int id) =>
+      ExerciseType.values.firstWhereOrNull((e) => e.id == id);
 }

@@ -32,6 +32,20 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
 
     private lateinit var exerciseClient: ExerciseClient
 
+    // Generate the ExerciseType dart enum and print it to logcat for copy/paste
+//    private fun generateExerciseTypeEnum() {
+//        fun String.toCamelCase(): String {
+//            val split = split("_")
+//            return split.first().lowercase() + split.drop(1)
+//                .joinToString("") { it.lowercase().replaceFirstChar { it.uppercase() } }
+//        }
+//        ExerciseType.VALUES.forEach {
+//            val name = it.name.toCamelCase()
+//            Log.d("WorkoutPlugin", "/// $name")
+//            Log.d("WorkoutPlugin", "$name(${it.id}),")
+//        }
+//    }
+
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "workout")
         channel.setMethodCallHandler(this)
@@ -48,6 +62,7 @@ class WorkoutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ExerciseU
                 stop()
                 result.success(null)
             }
+
             else -> result.notImplemented()
         }
     }

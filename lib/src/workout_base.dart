@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workout/src/model/exercise_type.dart';
@@ -27,16 +28,24 @@ class Workout {
   ///
   /// Tizen: Always empty
   Future<List<ExerciseType>> getSupportedExerciseTypes() async {
-    // This will throw on Tizen because it is not implemented
-    try {
-      final result =
-          await _channel.invokeListMethod('getSupportedExerciseTypes');
-      if (result == null) return [];
-      // These are returned as indices
-      return result.map((e) => ExerciseType.values[e]).toList();
-    } catch (e) {
-      return [];
+    if (!Platform.isAndroid) return [];
+
+    final result =
+        await _channel.invokeListMethod<int>('getSupportedExerciseTypes');
+
+    final types = <ExerciseType>[];
+    for (final id in result!) {
+      final type = ExerciseType.fromId(id);
+      if (type == null) {
+        debugPrint(
+          'Unknown ExerciseType id: $id. Please create an issue for this on GitHub.',
+        );
+      } else {
+        types.add(type);
+      }
     }
+
+    return types;
   }
 
   /// Starts a workout session with the specified [features] enabled
@@ -129,7 +138,7 @@ class Workout {
     final result = await _channel.invokeMapMethod<String, dynamic>(
       'start',
       {
-        'exerciseType': exerciseType?.index,
+        'exerciseType': exerciseType?.id,
         'sensors': sensors,
         'enableGps': enableGps,
       },
