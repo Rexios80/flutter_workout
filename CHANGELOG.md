@@ -1,3 +1,7 @@
+## 0.6.0
+- BREAKING: `ExerciseType` has been updated to match the native Android values
+- Updated Health Services. All data types now work on the Galaxy Watch4 and Pixel Watch.
+
 ## 0.5.1
 - Fixes Android build issue
 

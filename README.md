@@ -5,7 +5,7 @@ Run a workout session and get live health data from Wear OS and Tizen.
 ## Getting Started
 
 ### Wear OS
-Health Services for Wear OS are currently in developer preview
+Health Services for Wear OS are currently in beta
 
 android/app/build.gradle:
 
@@ -38,10 +38,10 @@ Make the following changes to `tizen/tizen-manifest.xml`:
 
 ## Supported data types
 
-| Feature    | Wear OS                      | Tizen |
-| ---------- | ---------------------------- | ----- |
-| Heart rate | Yes                          | Yes   |
-| Calories   | Yes                          | Yes   |
-| Step count | Not working on Galaxy Watch4 | Yes   |
-| Speed      | Yes                          | Yes   |
-| Distance   | Yes                          | Yes   |
+| Feature    | Wear OS | Tizen |
+| ---------- | ------- | ----- |
+| Heart rate | Yes     | Yes   |
+| Calories   | Yes     | Yes   |
+| Step count | Yes     | Yes   |
+| Speed      | Yes     | Yes   |
+| Distance   | Yes     | Yes   |
