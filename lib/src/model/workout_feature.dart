@@ -15,6 +15,6 @@ enum WorkoutFeature {
   /// Distance traveled in meters
   distance,
 
-  /// Speed in km/h
+  /// Speed in m/s
   speed,
 }
