@@ -1,3 +1,6 @@
+## 0.6.1
+- Small documentation update [#5](https://github.com/Rexios80/flutter_workout/pull/5)
+
 ## 0.6.0
 - BREAKING: `ExerciseType` has been updated to match the native Android values
 - Updated Health Services. All data types now work on the Galaxy Watch4 and Pixel Watch.
