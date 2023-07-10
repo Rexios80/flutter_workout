@@ -34,6 +34,7 @@ android {
         minSdkVersion 30
         consumerProguardFiles 'proguard-rules.pro'
     }
+    namespace "dev.rexios.workout"
 }
 
 dependencies {

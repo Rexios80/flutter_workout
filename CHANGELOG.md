@@ -1,3 +1,6 @@
+## 0.6.2
+- Adds namespace to `build.gradle` for Gradle 8
+
 ## 0.6.1
 - Small documentation update [#5](https://github.com/Rexios80/flutter_workout/pull/5)
 
