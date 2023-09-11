@@ -1,3 +1,6 @@
+## 0.6.3
+- Upgrades permission_handler to version 11.0.0
+
 ## 0.6.2
 - Adds namespace to `build.gradle` for Gradle 8
 
