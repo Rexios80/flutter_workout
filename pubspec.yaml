@@ -28,3 +28,5 @@ flutter:
       tizen:
         pluginClass: WorkoutPlugin
         fileName: workout_plugin.h
+      ios:
+        pluginClass: WorkoutPlugin
