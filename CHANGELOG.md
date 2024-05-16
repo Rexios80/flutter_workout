@@ -1,3 +1,6 @@
+## NEXT
+- Adds `startWatchApp` method for iOS
+
 ## 0.6.3
 - Upgrades permission_handler to version 11.0.0
 

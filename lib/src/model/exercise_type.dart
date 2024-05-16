@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:collection/collection.dart';
 
 /// Exercise types for Wear OS
 enum ExerciseType {
   /// unknown
-  unknown(0),
+  unknown(androidId: 0, iosId: null),
 
   /// alpineSkiing
-  alpineSkiing(92),
+  /// 
+  /// iOS: downhillSkiing
+  alpineSkiing(androidId: 92, iosId: 61),
 
   /// backpacking
   backpacking(84),
@@ -15,16 +19,16 @@ enum ExerciseType {
   backExtension(1),
 
   /// badminton
-  badminton(2),
+  badminton(androidId: 2, iosId: 4),
 
   /// barbellShoulderPress
   barbellShoulderPress(3),
 
   /// baseball
-  baseball(4),
+  baseball(androidId: 4, iosId: 5),
 
   /// basketball
-  basketball(5),
+  basketball(androidId: 5, iosId: 6),
 
   /// benchPress
   benchPress(6),
@@ -33,7 +37,9 @@ enum ExerciseType {
   benchSitUp(7),
 
   /// biking
-  biking(8),
+  ///
+  /// iOS: cycling
+  biking(androidId: 8, iosId: 13),
 
   /// bikingStationary
   bikingStationary(9),
@@ -42,7 +48,7 @@ enum ExerciseType {
   bootCamp(10),
 
   /// boxing
-  boxing(11),
+  boxing(androidId: 11, iosId: 8),
 
   /// burpee
   burpee(12),
@@ -51,16 +57,16 @@ enum ExerciseType {
   calisthenics(13),
 
   /// cricket
-  cricket(14),
+  cricket(androidId: 14, iosId: 10),
 
   /// crossCountrySkiing
-  crossCountrySkiing(91),
+  crossCountrySkiing(androidId: 91, iosId: 60),
 
   /// crunch
   crunch(15),
 
   /// dancing
-  dancing(16),
+  dancing(androidId: 16, iosId: 14),
 
   /// deadlift
   deadlift(17),
@@ -87,58 +93,68 @@ enum ExerciseType {
   dumbbellTricepsExtensionTwoArm(24),
 
   /// elliptical
-  elliptical(25),
+  elliptical(androidId: 25, iosId: 16),
 
   /// exerciseClass
   exerciseClass(26),
 
   /// fencing
-  fencing(27),
+  fencing(androidId: 27, iosId: 18),
 
   /// frisbeeDisc
-  frisbeeDisc(28),
+  ///
+  /// iOS: discSports
+  frisbeeDisc(androidId: 28, iosId: 75),
 
   /// footballAmerican
-  footballAmerican(29),
+  footballAmerican(androidId: 29, iosId: 1),
 
   /// footballAustralian
-  footballAustralian(30),
+  footballAustralian(androidId: 30, iosId: 3),
 
   /// forwardTwist
   forwardTwist(31),
 
   /// golf
-  golf(32),
+  golf(androidId: 32, iosId: 21),
 
   /// guidedBreathing
   guidedBreathing(33),
 
   /// horseRiding
-  horseRiding(88),
+  ///
+  /// iOS: equestrianSports
+  horseRiding(androidId: 88, iosId: 17),
 
   /// gymnastics
-  gymnastics(34),
+  gymnastics(androidId: 34, iosId: 22),
 
   /// handball
-  handball(35),
+  handball(androidId: 35, iosId: 23),
 
   /// highIntensityIntervalTraining
-  highIntensityIntervalTraining(36),
+  highIntensityIntervalTraining(androidId: 36, iosId: 63),
 
   /// hiking
-  hiking(37),
+  hiking(androidId: 37, iosId: 24),
 
   /// iceHockey
-  iceHockey(38),
+  ///
+  /// iOS: hockey
+  iceHockey(androidId: 38, iosId: 25),
 
   /// iceSkating
-  iceSkating(39),
+  ///
+  /// iOS: skatingSports
+  iceSkating(androidId: 39, iosId: 39),
 
   /// inlineSkating
-  inlineSkating(87),
+  ///
+  /// iOS: skatingSports
+  inlineSkating(androidId: 87, iosId: 39),
 
   /// jumpRope
-  jumpRope(40),
+  jumpRope(androidId: 40, iosId: 64),
 
   /// jumpingJack
   jumpingJack(41),
@@ -150,10 +166,12 @@ enum ExerciseType {
   lunge(43),
 
   /// martialArts
-  martialArts(44),
+  martialArts(androidId: 44, iosId: 28),
 
   /// meditation
-  meditation(45),
+  ///
+  /// iOS: mindAndBody
+  meditation(androidId: 45, iosId: 29),
 
   /// mountainBiking
   mountainBiking(85),
@@ -162,132 +180,282 @@ enum ExerciseType {
   orienteering(86),
 
   /// paddling
-  paddling(46),
+  ///
+  /// iOS: paddleSports
+  paddling(androidId: 46, iosId: 31),
 
   /// paraGliding
   paraGliding(47),
 
   /// pilates
-  pilates(48),
+  pilates(androidId: 48, iosId: 66),
 
   /// plank
   plank(49),
 
   /// racquetball
-  racquetball(50),
+  racquetball(androidId: 50, iosId: 34),
 
   /// rockClimbing
-  rockClimbing(51),
+  rockClimbing(androidId: 51, iosId: 9),
 
   /// rollerHockey
-  rollerHockey(52),
+  ///
+  /// iOS: hockey
+  rollerHockey(androidId: 52, iosId: 25),
 
   /// rollerSkating
-  rollerSkating(89),
+  ///
+  /// iOS: skatingSports
+  rollerSkating(androidId: 89, iosId: 39),
 
   /// rowing
-  rowing(53),
+  rowing(androidId: 53, iosId: 35),
 
   /// rowingMachine
   rowingMachine(54),
 
   /// running
-  running(55),
+  running(androidId: 55, iosId: 37),
 
   /// runningTreadmill
   runningTreadmill(56),
 
   /// rugby
-  rugby(57),
+  rugby(androidId: 57, iosId: 36),
 
   /// sailing
-  sailing(58),
+  sailing(androidId: 58, iosId: 38),
 
   /// scubaDiving
-  scubaDiving(59),
+  scubaDiving(androidId: 59, iosId: 84),
 
   /// skating
-  skating(60),
+  ///
+  /// iOS: skatingSports
+  skating(androidId: 60, iosId: 39),
 
   /// skiing
-  skiing(61),
+  ///
+  /// iOS: downhillSkiing
+  skiing(androidId: 61, iosId: 61),
 
   /// snowboarding
-  snowboarding(62),
+  snowboarding(androidId: 62, iosId: 67),
 
   /// snowshoeing
   snowshoeing(63),
 
   /// soccer
-  soccer(64),
+  soccer(androidId: 64, iosId: 41),
 
   /// softball
-  softball(65),
+  softball(androidId: 65, iosId: 42),
 
   /// squash
-  squash(66),
+  squash(androidId: 66, iosId: 43),
 
   /// squat
   squat(67),
 
   /// stairClimbing
-  stairClimbing(68),
+  stairClimbing(androidId: 68, iosId: 44),
 
   /// stairClimbingMachine
-  stairClimbingMachine(69),
+  ///
+  /// iOS: stairClimbing
+  stairClimbingMachine(androidId: 69, iosId: 44),
 
   /// strengthTraining
-  strengthTraining(70),
+  ///
+  /// iOS: functionalStrengthTraining
+  strengthTraining(androidId: 70, iosId: 20),
 
   /// stretching
-  stretching(71),
+  ///
+  /// iOS: flexibility
+  stretching(androidId: 71, iosId: 62),
 
   /// surfing
-  surfing(72),
+  ///
+  /// iOS: surfingSports
+  surfing(androidId: 72, iosId: 45),
 
   /// swimmingOpenWater
-  swimmingOpenWater(73),
+  ///
+  /// iOS: Use with [SwimmingLocationType.openWater]
+  swimmingOpenWater(androidId: 73, iosId: 46),
 
   /// swimmingPool
-  swimmingPool(74),
+  ///
+  /// iOS: Use with [SwimmingLocationType.pool]
+  swimmingPool(androidId: 74, iosId: 46),
 
   /// tableTennis
-  tableTennis(75),
+  tableTennis(androidId: 75, iosId: 47),
 
   /// tennis
-  tennis(76),
+  tennis(androidId: 76, iosId: 48),
 
   /// upperTwist
   upperTwist(77),
 
   /// volleyball
-  volleyball(78),
+  volleyball(androidId: 78, iosId: 51),
 
   /// walking
-  walking(79),
+  walking(androidId: 79, iosId: 52),
 
   /// waterPolo
-  waterPolo(80),
+  waterPolo(androidId: 80, iosId: 54),
 
   /// weightlifting
-  weightlifting(81),
+  ///
+  /// iOS: traditionalStrengthTraining
+  weightlifting(androidId: 81, iosId: 50),
 
   /// workout
-  workout(82),
+  ///
+  /// iOS: other
+  workout(androidId: 82, iosId: 3000),
 
   /// yachting
   yachting(90),
 
   /// yoga
-  yoga(83);
+  yoga(androidId: 83, iosId: 57),
 
-  /// The type id
-  final int id;
+  // MARK: - iOS only types
+
+  /// archery
+  archery(androidId: null, iosId: 2),
+
+  /// bowling
+  bowling(androidId: null, iosId: 7),
+
+  /// crossTraining
+  crossTraining(androidId: null, iosId: 11),
+
+  /// curling
+  curling(androidId: null, iosId: 12),
+
+  /// danceInspiredTraining
+  danceInspiredTraining(androidId: null, iosId: 15),
+
+  /// fishing
+  fishing(androidId: null, iosId: 19),
+
+  /// hunting
+  hunting(androidId: null, iosId: 26),
+
+  /// lacrosse
+  lacrosse(androidId: null, iosId: 27),
+
+  /// mixedMetabolicCardioTraining
+  mixedMetabolicCardioTraining(androidId: null, iosId: 30),
+
+  /// play
+  play(androidId: null, iosId: 32),
+
+  /// preparationAndRecovery
+  preparationAndRecovery(androidId: null, iosId: 33),
+
+  /// snowSports
+  snowSports(androidId: null, iosId: 40),
+
+  /// trackAndField
+  trackAndField(androidId: null, iosId: 49),
+
+  /// waterFitness
+  waterFitness(androidId: null, iosId: 53),
+
+  /// waterSports
+  waterSports(androidId: null, iosId: 55),
+
+  /// wrestling
+  wrestling(androidId: null, iosId: 56),
+
+  /// barre
+  barre(androidId: null, iosId: 58),
+
+  /// coreTraining
+  coreTraining(androidId: null, iosId: 59),
+
+  /// kickboxing
+  kickboxing(androidId: null, iosId: 65),
+
+  /// stairs
+  stairs(androidId: null, iosId: 68),
+
+  /// stepTraining
+  stepTraining(androidId: null, iosId: 69),
+
+  /// wheelchairWalkPace
+  wheelchairWalkPace(androidId: null, iosId: 70),
+
+  /// wheelchairRunPace
+  wheelchairRunPace(androidId: null, iosId: 71),
+
+  /// taiChi
+  taiChi(androidId: null, iosId: 72),
+
+  /// mixedCardio
+  mixedCardio(androidId: null, iosId: 73),
+
+  /// handCycling
+  handCycling(androidId: null, iosId: 74),
+
+  /// fitnessGaming
+  fitnessGaming(androidId: null, iosId: 76),
+
+  /// cardioDance
+  cardioDance(androidId: null, iosId: 77),
+
+  /// socialDance
+  socialDance(androidId: null, iosId: 78),
+
+  /// pickleball
+  pickleball(androidId: null, iosId: 79),
+
+  /// cooldown
+  cooldown(androidId: null, iosId: 80),
+
+  /// swimBikeRun
+  swimBikeRun(androidId: null, iosId: 82),
+
+  /// transition
+  transition(androidId: null, iosId: 83);
+
+  /// The type id for Android
+  final int? _androidId;
+
+  /// The type id for iOS
+  final int? _iosId;
+
+  /// Returns the id for the current platform
+  int? get id {
+    if (Platform.isAndroid) {
+      return _androidId;
+    } else if (Platform.isIOS) {
+      return _iosId;
+    } else {
+      return null;
+    }
+  }
 
   /// Constructor
-  const ExerciseType(this.id);
+  const ExerciseType({required int? androidId, required int? iosId})
+      : _iosId = iosId,
+        _androidId = androidId;
 
   /// Returns the [ExerciseType] for the given [id]
-  static ExerciseType? fromId(int id) =>
-      ExerciseType.values.firstWhereOrNull((e) => e.id == id);
+  static ExerciseType? fromId(int id) {
+    if (Platform.isAndroid) {
+      return ExerciseType.values.firstWhereOrNull((e) => e._androidId == id);
+    } else if (Platform.isIOS) {
+      return ExerciseType.values.firstWhereOrNull((e) => e._iosId == id);
+    } else {
+      return null;
+    }
+  }
 }
