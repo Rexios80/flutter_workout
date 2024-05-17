@@ -11,15 +11,37 @@ public class WorkoutPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
-        case "startWatchApp":
-            startWatchApp(call, result: result)
+        case "start":
+            Task { await startWatchApp(call, result: result) }
+        case "stop":
+            result(nil)
         default:
             result(FlutterMethodNotImplemented)
         }
     }
 
-    func startWatchApp(_ call: FlutterMethodCall, result: FlutterResult) {
+    func startWatchApp(_ call: FlutterMethodCall, result: FlutterResult) async {
+        let arguments = call.arguments as! [String: Any]
+
         let configuration = HKWorkoutConfiguration()
-        configuration.activityType = .americanFootball
+        if let activityTypeId = arguments["exerciseType"] as! Int?, let activityType = HKWorkoutActivityType(rawValue: UInt(activityTypeId)) {
+            configuration.activityType = activityType
+        }
+        if let locationTypeId = arguments["locationType"] as! Int?, let locationType = HKWorkoutSessionLocationType(rawValue: locationTypeId) {
+            configuration.locationType = locationType
+        }
+        if let swimmingLocationTypeId = arguments["swimmingLocationType"] as! Int?, let swimmingLocationType = HKWorkoutSwimmingLocationType(rawValue: swimmingLocationTypeId) {
+            configuration.swimmingLocationType = swimmingLocationType
+        }
+        if let lapLength = arguments["lapLength"] as! Double? {
+            configuration.lapLength = HKQuantity(unit: HKUnit.meter(), doubleValue: lapLength)
+        }
+
+        do {
+            try await HKHealthStore().startWatchApp(toHandle: configuration)
+            result(nil)
+        } catch {
+            result(FlutterError(code: "start_error", message: "Failed to start watch app", details: error.localizedDescription))
+        }
     }
 }
