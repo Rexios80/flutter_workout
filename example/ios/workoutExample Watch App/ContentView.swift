@@ -8,13 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var mainEO: MainEO
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        if let config = mainEO.workoutConfiguration {
+            Text("""
+            Activity Type: \(config.activityType)
+            Location Type: \(config.locationType)
+            Swimming Location Type: \(config.swimmingLocationType)
+            Lap Length: \(String(describing: config.lapLength))
+            """)
+        } else {
+            Text("No workout configuration")
         }
-        .padding()
     }
 }

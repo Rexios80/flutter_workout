@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:wear/wear.dart';
 import 'package:workout/workout.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(Platform.isIOS ? const MyIosApp() : const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -101,11 +103,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   void toggleExerciseState() async {
-    setState(() {
-      started = !started;
-    });
-
     if (started) {
+      await workout.stop();
+    } else {
       final supportedExerciseTypes = await workout.getSupportedExerciseTypes();
       // ignore: avoid_print
       print('Supported exercise types: ${supportedExerciseTypes.length}');
@@ -125,8 +125,80 @@ class _MyAppState extends State<MyApp> {
         // ignore: avoid_print
         print('All requested features supported');
       }
-    } else {
-      await workout.stop();
     }
+
+    setState(() => started = !started);
+  }
+}
+
+class MyIosApp extends StatefulWidget {
+  const MyIosApp({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _MyIosAppState();
+}
+
+class _MyIosAppState extends State<MyIosApp> {
+  final workout = Workout();
+
+  var exerciseType = ExerciseType.workout;
+  var locationType = WorkoutLocationType.indoor;
+  var swimmingLocationType = WorkoutSwimmingLocationType.pool;
+  var lapLength = 25.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Column(
+            children: [
+              DropdownButton<ExerciseType>(
+                value: exerciseType,
+                onChanged: (value) => setState(() => exerciseType = value!),
+                items: ExerciseType.values
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
+                    .toList(),
+              ),
+              DropdownButton<WorkoutLocationType>(
+                value: locationType,
+                onChanged: (value) => setState(() => locationType = value!),
+                items: WorkoutLocationType.values
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
+                    .toList(),
+              ),
+              DropdownButton<WorkoutSwimmingLocationType>(
+                value: swimmingLocationType,
+                onChanged: (value) =>
+                    setState(() => swimmingLocationType = value!),
+                items: WorkoutSwimmingLocationType.values
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
+                    .toList(),
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Lap length'),
+                keyboardType: TextInputType.number,
+                onChanged: (value) =>
+                    setState(() => lapLength = double.parse(value)),
+              ),
+              ElevatedButton(
+                onPressed: start,
+                child: const Text('Start Apple Watch app'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void start() {
+    workout.start(
+      exerciseType: exerciseType,
+      features: [],
+      locationType: locationType,
+      swimmingLocationType: swimmingLocationType,
+      lapLength: lapLength,
+    );
   }
 }

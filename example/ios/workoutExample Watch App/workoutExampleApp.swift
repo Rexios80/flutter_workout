@@ -10,17 +10,27 @@ import SwiftUI
 
 @main
 struct workoutExample_Watch_AppApp: App {
-//    @WKApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @WKApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     init() {}
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().environmentObject(MainEO.shared)
         }
     }
 }
 
-//class AppDelegate: NSObject, WKApplicationDelegate {
-//    func handle(_ workoutConfiguration: HKWorkoutConfiguration) {}
-//}
+class MainEO: ObservableObject {
+    static let shared = MainEO()
+
+    private init() {}
+
+    @Published var workoutConfiguration: HKWorkoutConfiguration?
+}
+
+class AppDelegate: NSObject, WKApplicationDelegate {
+    func handle(_ workoutConfiguration: HKWorkoutConfiguration) {
+        MainEO.shared.workoutConfiguration = workoutConfiguration
+    }
+}
