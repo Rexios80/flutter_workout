@@ -150,8 +150,9 @@ class _MyIosAppState extends State<MyIosApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Center(
-          child: Column(
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
             children: [
               DropdownButton<ExerciseType>(
                 value: exerciseType,

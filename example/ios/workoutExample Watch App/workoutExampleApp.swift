@@ -12,8 +12,6 @@ import SwiftUI
 struct workoutExample_Watch_AppApp: App {
     @WKApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-    init() {}
-
     var body: some Scene {
         WindowGroup {
             ContentView().environmentObject(MainEO.shared)
@@ -26,11 +24,17 @@ class MainEO: ObservableObject {
 
     private init() {}
 
-    @Published var workoutConfiguration: HKWorkoutConfiguration?
+    @Published var activityType: HKWorkoutActivityType?
+    @Published var locationType: HKWorkoutSessionLocationType?
+    @Published var swimmingLocationType: HKWorkoutSwimmingLocationType?
+    @Published var lapLength: Double?
 }
 
 class AppDelegate: NSObject, WKApplicationDelegate {
     func handle(_ workoutConfiguration: HKWorkoutConfiguration) {
-        MainEO.shared.workoutConfiguration = workoutConfiguration
+        MainEO.shared.activityType = workoutConfiguration.activityType
+        MainEO.shared.locationType = workoutConfiguration.locationType
+        MainEO.shared.swimmingLocationType = workoutConfiguration.swimmingLocationType
+        MainEO.shared.lapLength = workoutConfiguration.lapLength?.doubleValue(for: .meter())
     }
 }

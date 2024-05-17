@@ -26,3 +26,6 @@ dependency_overrides:
 
 dev_dependencies:
   rexios_lints: ^6.0.1
+
+flutter:
+  uses-material-design: true
