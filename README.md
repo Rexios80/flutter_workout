@@ -1,10 +1,11 @@
 # workout
 
-Run a workout session and get live health data from Wear OS and Tizen.
+Run a workout session and get live health data from Wear OS and Tizen. Also start a watchOS app from iOS.
 
 ## Getting Started
 
 ### Wear OS
+
 Health Services for Wear OS are currently in beta
 
 android/app/build.gradle:
@@ -12,6 +13,7 @@ android/app/build.gradle:
 `minSdkVersion 30`
 
 android/app/src/main/AndroidManifest.xml:
+
 ```xml
 <!-- Required for heart rate -->
 <uses-permission android:name="android.permission.BODY_SENSORS" />
@@ -26,6 +28,7 @@ android/app/src/main/AndroidManifest.xml:
 This plugin requires Tizen 4.0+.
 
 Make the following changes to `tizen/tizen-manifest.xml`:
+
 ```
 <manifest api-version="4.0" ...>
     <privileges>
@@ -35,6 +38,10 @@ Make the following changes to `tizen/tizen-manifest.xml`:
     <feature name="http://tizen.org/feature/sensor.pedometer">true</feature>
 </manifest>
 ```
+
+### iOS
+
+Flutter cannot run on watchOS, but there is a method on iOS to start the watch app. This requires the `HealthKit` entitlement. Calling the `start` method on iOS will call `startWatchApp` with the given parameters.
 
 ## Supported data types
 
