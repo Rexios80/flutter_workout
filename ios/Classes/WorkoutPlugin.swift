@@ -21,6 +21,5 @@ public class WorkoutPlugin: NSObject, FlutterPlugin {
     func startWatchApp(_ call: FlutterMethodCall, result: FlutterResult) {
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = .americanFootball
-        configuration.locationType = .outdoor
     }
 }

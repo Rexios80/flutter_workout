@@ -3,10 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:workout/src/model/exercise_type.dart';
-import 'package:workout/src/model/workout_feature.dart';
-import 'package:workout/src/model/workout_reading.dart';
-import 'package:workout/src/model/workout_start_result.dart';
+import 'package:workout/workout.dart';
+import 'package:flutter_tizen/flutter_tizen.dart' as tizen;
 
 /// Base class for flutter_workout
 class Workout {
@@ -27,6 +25,8 @@ class Workout {
   /// Wear OS: The supported [ExerciseType]s of the device
   ///
   /// Tizen: Always empty
+  ///
+  /// iOS: Always empty
   Future<List<ExerciseType>> getSupportedExerciseTypes() async {
     if (!Platform.isAndroid) return [];
 
@@ -54,19 +54,39 @@ class Workout {
   ///
   /// [enableGps] allows location information to be used to estimate
   /// distance/speed instead of steps. Will request location permission.
-  /// Has no effect on Tizen.
+  /// Only available on Wear OS.
+  ///
+  /// [locationType], [swimmingLocationType], and [lapLength] are iOS only
+  ///
+  /// [lapLength] is the length of the pool in meters
+  ///
+  /// iOS: Calls `startWatchApp` with the given configuration. The `workout`
+  /// plugin cannot read data from an Apple Watch. See the `watch_connectivity`
+  /// plugin for watch communication.
   Future<WorkoutStartResult> start({
     required ExerciseType exerciseType,
     required List<WorkoutFeature> features,
     bool enableGps = false,
+    WorkoutLocationType? locationType,
+    WorkoutSwimmingLocationType? swimmingLocationType,
+    double? lapLength,
   }) {
     _currentFeatures = features;
 
     if (Platform.isAndroid) {
       return _initWearOS(exerciseType: exerciseType, enableGps: enableGps);
-    } else {
+    } else if (Platform.isIOS) {
+      return _initIos(
+        exerciseType: exerciseType,
+        locationType: locationType,
+        swimmingLocationType: swimmingLocationType,
+        lapLength: lapLength,
+      );
+    } else if (tizen.isTizen) {
       // This is Tizen
       return _initTizen();
+    } else {
+      throw UnsupportedError('Unsupported platform');
     }
   }
 
@@ -113,6 +133,20 @@ class Workout {
     );
   }
 
+  Future<WorkoutStartResult> _initIos({
+    required ExerciseType exerciseType,
+    required WorkoutLocationType? locationType,
+    required WorkoutSwimmingLocationType? swimmingLocationType,
+    required double? lapLength,
+  }) {
+    return _start(
+      exerciseType: exerciseType,
+      locationType: locationType,
+      swimmingLocationType: swimmingLocationType,
+      lapLength: lapLength,
+    );
+  }
+
   Future<WorkoutStartResult> _initTizen() async {
     final sensors = <String>[];
     final status = await Permission.sensors.request();
@@ -127,13 +161,16 @@ class Workout {
         sensors.add('pedometer');
       }
     }
-    return _start(exerciseType: null, sensors: sensors, enableGps: false);
+    return _start(sensors: sensors);
   }
 
   Future<WorkoutStartResult> _start({
-    required ExerciseType? exerciseType,
-    required List<String> sensors,
-    required bool enableGps,
+    ExerciseType? exerciseType,
+    List<String> sensors = const [],
+    bool enableGps = false,
+    WorkoutLocationType? locationType,
+    WorkoutSwimmingLocationType? swimmingLocationType,
+    double? lapLength,
   }) async {
     final result = await _channel.invokeMapMethod<String, dynamic>(
       'start',
@@ -141,6 +178,9 @@ class Workout {
         'exerciseType': exerciseType?.id,
         'sensors': sensors,
         'enableGps': enableGps,
+        'locationType': locationType?.id,
+        'swimmingLocationType': swimmingLocationType?.id,
+        'lapLength': lapLength,
       },
     );
     return WorkoutStartResult.fromResult(result);
