@@ -43,27 +43,22 @@ class _MyAppState extends State<MyApp> {
           setState(() {
             heartRate = event.value;
           });
-          break;
         case WorkoutFeature.calories:
           setState(() {
             calories = event.value;
           });
-          break;
         case WorkoutFeature.steps:
           setState(() {
             steps = event.value;
           });
-          break;
         case WorkoutFeature.distance:
           setState(() {
             distance = event.value;
           });
-          break;
         case WorkoutFeature.speed:
           setState(() {
             speed = event.value;
           });
-          break;
       }
     });
   }
