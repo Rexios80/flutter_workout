@@ -37,8 +37,7 @@ class _MyAppState extends State<MyApp> {
 
   _MyAppState() {
     workout.stream.listen((event) {
-      // ignore: avoid_print
-      print('${event.feature}: ${event.value} (${event.timestamp})');
+      debugPrint('${event.feature}: ${event.value} (${event.timestamp})');
       switch (event.feature) {
         case WorkoutFeature.unknown:
           return;
@@ -46,27 +45,22 @@ class _MyAppState extends State<MyApp> {
           setState(() {
             heartRate = event.value;
           });
-          break;
         case WorkoutFeature.calories:
           setState(() {
             calories = event.value;
           });
-          break;
         case WorkoutFeature.steps:
           setState(() {
             steps = event.value;
           });
-          break;
         case WorkoutFeature.distance:
           setState(() {
             distance = event.value;
           });
-          break;
         case WorkoutFeature.speed:
           setState(() {
             speed = event.value;
           });
-          break;
       }
     });
   }
@@ -107,8 +101,7 @@ class _MyAppState extends State<MyApp> {
       await workout.stop();
     } else {
       final supportedExerciseTypes = await workout.getSupportedExerciseTypes();
-      // ignore: avoid_print
-      print('Supported exercise types: ${supportedExerciseTypes.length}');
+      debugPrint('Supported exercise types: ${supportedExerciseTypes.length}');
 
       final result = await workout.start(
         // In a real application, check the supported exercise types first
@@ -118,12 +111,10 @@ class _MyAppState extends State<MyApp> {
       );
 
       if (result.unsupportedFeatures.isNotEmpty) {
-        // ignore: avoid_print
-        print('Unsupported features: ${result.unsupportedFeatures}');
+        debugPrint('Unsupported features: ${result.unsupportedFeatures}');
         // In a real application, update the UI to match
       } else {
-        // ignore: avoid_print
-        print('All requested features supported');
+        debugPrint('All requested features supported');
       }
     }
 
