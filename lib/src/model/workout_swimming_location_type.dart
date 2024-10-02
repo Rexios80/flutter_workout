@@ -1,5 +1,5 @@
 /// This enumerated type is used to represent the location type of a swimming workout.
-/// 
+///
 /// iOS only
 enum WorkoutSwimmingLocationType {
   /// unknown

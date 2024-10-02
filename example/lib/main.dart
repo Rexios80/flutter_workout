@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:wear/wear.dart';
+import 'package:wear_plus/wear_plus.dart';
 import 'package:workout/workout.dart';
 
 void main() {

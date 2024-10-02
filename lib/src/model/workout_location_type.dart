@@ -1,5 +1,5 @@
 /// This enumerated type is used to represent the location type of a workout session.
-/// 
+///
 /// iOS only
 enum WorkoutLocationType {
   /// unknown

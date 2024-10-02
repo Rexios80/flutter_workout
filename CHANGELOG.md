@@ -1,4 +1,4 @@
-## NEXT
+## 0.6.5
 
 - Adds `startWatchApp` method for iOS
 

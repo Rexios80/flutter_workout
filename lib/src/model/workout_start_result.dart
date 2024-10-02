@@ -5,7 +5,7 @@ class WorkoutStartResult {
   /// Wear OS: Requested features unsupported by the given exercise type
   ///
   /// Tizen: Always empty
-  /// 
+  ///
   /// iOS: Always empty
   final List<WorkoutFeature> unsupportedFeatures;
 
