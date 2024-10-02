@@ -41,7 +41,10 @@ Make the following changes to `tizen/tizen-manifest.xml`:
 
 ### iOS
 
-Flutter cannot run on watchOS, but there is a method on iOS to start the watch app. This requires the `HealthKit` entitlement. Calling the `start` method on iOS will call `startWatchApp` with the given parameters.
+Flutter cannot run on watchOS, but there is a method on iOS to start the watch app. Calling the `start` method on iOS will call `startWatchApp` with the given parameters. The following requirements must be met for this to function:
+
+- Both the phone and watch apps must have the `HealthKit` entitlement
+- The watch app must have the `Workout Processing` background mode enabled
 
 ## Supported data types
 

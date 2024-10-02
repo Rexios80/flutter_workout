@@ -65,6 +65,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0D26DCBF2CACF821002F43A2 /* workoutExample-Watch-App-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "workoutExample-Watch-App-Info.plist"; sourceTree = SOURCE_ROOT; };
 		0D989A562BF7EC5000757EFC /* workoutExample Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "workoutExample Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D989A582BF7EC5000757EFC /* workoutExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = workoutExampleApp.swift; sourceTree = "<group>"; };
 		0D989A5A2BF7EC5000757EFC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -127,6 +128,7 @@
 		0D989A572BF7EC5000757EFC /* workoutExample Watch App */ = {
 			isa = PBXGroup;
 			children = (
+				0D26DCBF2CACF821002F43A2 /* workoutExample-Watch-App-Info.plist */,
 				0D989A692BF7F44D00757EFC /* workoutExample Watch App.entitlements */,
 				0D989A582BF7EC5000757EFC /* workoutExampleApp.swift */,
 				0D989A5A2BF7EC5000757EFC /* ContentView.swift */,
@@ -538,6 +540,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "workoutExample-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = workoutExample;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = dev.rexios.workoutExample;
@@ -582,6 +585,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "workoutExample-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = workoutExample;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = dev.rexios.workoutExample;
@@ -624,6 +628,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "workoutExample-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = workoutExample;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = dev.rexios.workoutExample;

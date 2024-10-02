@@ -60,9 +60,9 @@ class Workout {
   ///
   /// [lapLength] is the length of the pool in meters
   ///
-  /// iOS: Calls `startWatchApp` with the given configuration. The `workout`
-  /// plugin cannot read data from an Apple Watch. See the `watch_connectivity`
-  /// plugin for watch communication.
+  /// iOS: Calls `startWatchApp` with the given configuration. Requires both
+  /// apps to have the `HealthKit` entitlement. The watch app must have the
+  /// `Workout Processing` background mode enabled.
   Future<WorkoutStartResult> start({
     required ExerciseType exerciseType,
     required List<WorkoutFeature> features,
