@@ -1,3 +1,7 @@
+## 0.6.6
+
+- Fixes Android build issue
+
 ## 0.6.5
 
 - Adds `startWatchApp` method for iOS
