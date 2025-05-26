@@ -12,13 +12,13 @@ dependencies:
     sdk: flutter
 
   flutter_plugin_android_lifecycle: ^2.0.5
-  permission_handler: ^11.0.0
+  permission_handler: ^12.0.0+1
   permission_handler_tizen: ^1.0.0
   collection: ^1.16.0
   flutter_tizen: ^0.2.2
 
 dev_dependencies:
-  rexios_lints: ^8.2.0
+  rexios_lints: ^11.0.6
 
 flutter:
   plugin:
