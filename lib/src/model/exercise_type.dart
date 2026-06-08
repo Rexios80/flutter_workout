@@ -860,8 +860,8 @@ enum ExerciseType {
 
   /// Constructor
   const ExerciseType({required int androidId, required int iosId})
-      : _iosId = iosId,
-        _androidId = androidId;
+    : _iosId = iosId,
+      _androidId = androidId;
 
   /// Returns the [ExerciseType] for the given [id]
   static ExerciseType? fromId(int id) {

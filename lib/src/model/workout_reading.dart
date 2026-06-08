@@ -15,7 +15,7 @@ class WorkoutReading {
 
   /// Constructor
   WorkoutReading(this.feature, this.value, int? timestamp)
-      : timestamp = timestamp != null
-            ? DateTime.fromMillisecondsSinceEpoch(timestamp)
-            : DateTime.timestamp();
+    : timestamp = timestamp != null
+          ? DateTime.fromMillisecondsSinceEpoch(timestamp)
+          : DateTime.timestamp();
 }

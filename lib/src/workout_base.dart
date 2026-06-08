@@ -30,8 +30,9 @@ class Workout {
   Future<List<ExerciseType>> getSupportedExerciseTypes() async {
     if (!Platform.isAndroid) return [];
 
-    final result =
-        await _channel.invokeListMethod<int>('getSupportedExerciseTypes');
+    final result = await _channel.invokeListMethod<int>(
+      'getSupportedExerciseTypes',
+    );
 
     final types = <ExerciseType>[];
     for (final id in result!) {
@@ -109,8 +110,9 @@ class Workout {
       WorkoutFeature.distance,
       WorkoutFeature.speed,
     };
-    final requestedActivityRecognitionFeatures =
-        _currentFeatures.toSet().intersection(activityRecognitionFeatures);
+    final requestedActivityRecognitionFeatures = _currentFeatures
+        .toSet()
+        .intersection(activityRecognitionFeatures);
 
     if (requestedActivityRecognitionFeatures.isNotEmpty) {
       final status = await Permission.activityRecognition.request();
@@ -172,17 +174,14 @@ class Workout {
     WorkoutSwimmingLocationType? swimmingLocationType,
     double? lapLength,
   }) async {
-    final result = await _channel.invokeMapMethod<String, dynamic>(
-      'start',
-      {
-        'exerciseType': exerciseType?.id,
-        'sensors': sensors,
-        'enableGps': enableGps,
-        'locationType': locationType?.id,
-        'swimmingLocationType': swimmingLocationType?.id,
-        'lapLength': lapLength,
-      },
-    );
+    final result = await _channel.invokeMapMethod<String, dynamic>('start', {
+      'exerciseType': exerciseType?.id,
+      'sensors': sensors,
+      'enableGps': enableGps,
+      'locationType': locationType?.id,
+      'swimmingLocationType': swimmingLocationType?.id,
+      'lapLength': lapLength,
+    });
     return WorkoutStartResult.fromResult(result);
   }
 
