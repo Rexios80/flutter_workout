@@ -24,16 +24,16 @@ public class WorkoutPlugin: NSObject, FlutterPlugin {
         let arguments = call.arguments as! [String: Any]
 
         let configuration = HKWorkoutConfiguration()
-        if let activityTypeId = arguments["exerciseType"] as! Int?, let activityType = HKWorkoutActivityType(rawValue: UInt(activityTypeId)) {
+        if let activityTypeId = arguments["exerciseType"] as? Int, let activityType = HKWorkoutActivityType(rawValue: UInt(activityTypeId)) {
             configuration.activityType = activityType
         }
-        if let locationTypeId = arguments["locationType"] as! Int?, let locationType = HKWorkoutSessionLocationType(rawValue: locationTypeId) {
+        if let locationTypeId = arguments["locationType"] as? Int, let locationType = HKWorkoutSessionLocationType(rawValue: locationTypeId) {
             configuration.locationType = locationType
         }
-        if let swimmingLocationTypeId = arguments["swimmingLocationType"] as! Int?, let swimmingLocationType = HKWorkoutSwimmingLocationType(rawValue: swimmingLocationTypeId) {
+        if let swimmingLocationTypeId = arguments["swimmingLocationType"] as? Int, let swimmingLocationType = HKWorkoutSwimmingLocationType(rawValue: swimmingLocationTypeId) {
             configuration.swimmingLocationType = swimmingLocationType
         }
-        if let lapLength = arguments["lapLength"] as! Double? {
+        if let lapLength = arguments["lapLength"] as? Double {
             configuration.lapLength = HKQuantity(unit: HKUnit.meter(), doubleValue: lapLength)
         }
 
