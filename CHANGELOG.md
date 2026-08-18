@@ -1,3 +1,7 @@
+## 0.6.12
+
+- Fixes an iOS crash when `start` is called without optional location/lap arguments (`NSNull` force-cast)
+
 ## 0.6.11
 
 - Updates minimum supported SDK version to Flutter 3.44/Dart 3.12.
