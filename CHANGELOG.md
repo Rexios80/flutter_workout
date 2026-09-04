@@ -1,3 +1,8 @@
+## 0.6.13
+
+- Upgrades permission_handler to version 13.0.0
+- Uses initializing formals for `ExerciseType` private named parameters
+
 ## 0.6.12
 
 - Fixes an iOS crash when `start` is called without optional location/lap arguments (`NSNull` force-cast)
